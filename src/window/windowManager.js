@@ -28,7 +28,7 @@ if (shouldUseLiquidGlass) {
 }
 /* ────────────────[ GLASS BYPASS ]─────────────── */
 
-let isContentProtectionOn = true;
+let isContentProtectionOn = true;  // 这个字段控制整个窗口的默认显示与隐藏 true: 隐藏；false：显示
 let lastVisibleWindows = new Set(['header']);
 
 let currentHeaderState = 'apikey';
