@@ -362,9 +362,14 @@ class ListenService {
                 case 'Listen':
                     console.log('[ListenService] changeSession to "Listen"');
                     // internalBridge.emit('window:requestVisibility', { name: 'listen', visible: true });
-                    await this.initializeSession();
-                    this.sendToRenderer('session-state-changed', { isActive: true });
-                    this.showLiveInsightsView();
+                    {
+                        const ok = await this.initializeSession();
+                        if (!ok) {
+                            throw new Error('Listen session initialization failed');
+                        }
+                        this.sendToRenderer('session-state-changed', { isActive: true });
+                        this.showLiveInsightsView();
+                    }
                     break;
 
                 case 'Stop':
@@ -537,16 +542,22 @@ class ListenService {
             return false;
         }
 
+        // Prevent multiple sessions
+        if (this.currentSessionId) {
+            console.log('A session is already active.');
+            return false;
+        }
+
         this.isInitializingSession = true;
         this.sendToRenderer('session-initializing', true);
         this.sendToRenderer('update-status', 'Initializing sessions...');
 
+        let initSucceeded = false;
+
         try {
             // Initialize database session
-            const sessionInitialized = await this.initializeNewSession();
-            if (!sessionInitialized) {
-                throw new Error('Failed to initialize database session');
-            }
+            this.currentSessionId = await sessionRepository.getOrCreateActive('listen');
+            console.log(`[DB] New listen session ensured: ${this.currentSessionId}`);
 
             /* ---------- STT Initialization Retry Logic ---------- */
             const MAX_RETRY = 10;
@@ -574,6 +585,9 @@ class ListenService {
 
             this.sendToRenderer('update-status', 'Connected. Ready to listen.');
 
+            initSucceeded = true;
+            this.sendToRenderer('change-listen-capture-state', { status: "start" });
+
             return true;
         } catch (error) {
             console.error('❌ Failed to initialize listen service:', error);
@@ -582,7 +596,9 @@ class ListenService {
         } finally {
             this.isInitializingSession = false;
             this.sendToRenderer('session-initializing', false);
-            this.sendToRenderer('change-listen-capture-state', { status: "start" });
+            if (!initSucceeded) {
+                this.sendToRenderer('change-listen-capture-state', { status: "stop" });
+            }
         }
     }
 
