@@ -17,16 +17,9 @@ export function useSessionState() {
 
   const handleSessionResult = useCallback((event: any, { success }: { success: boolean }) => {
     console.log('[useSessionState] Session state update received:', { success, currentStatus: listenSessionStatus });
-    if (success) {
-      setListenSessionStatus(prev => {
-        const statusMap: Record<ListenSessionStatus, ListenSessionStatus> = {
-          beforeSession: 'inSession',
-          inSession: 'afterSession',
-          afterSession: 'beforeSession',
-        };
-        return statusMap[prev] || 'beforeSession';
-      });
-    } else {
+    // 状态在 toggleSession 里已做 optimistic update。
+    // 这里 success 时不再“推进一次”，避免出现状态错位；失败时回滚。
+    if (!success) {
       setListenSessionStatus('beforeSession');
     }
     setIsTogglingSession(false);
@@ -45,26 +38,26 @@ export function useSessionState() {
     setIsTogglingSession(true);
 
     try {
-      const listenButtonText = getListenButtonText(listenSessionStatus);
-      const isStartingRecording = listenSessionStatus === 'beforeSession';
+      // 这个 UI 按钮表现为“开始/停止收音”的二态开关：
+      // - inSession -> Stop
+      // - beforeSession / afterSession -> Listen
       const isStoppingRecording = listenSessionStatus === 'inSession';
+      const isStartingRecording = !isStoppingRecording;
+      const listenButtonText = isStoppingRecording ? 'Stop' : 'Listen';
 
       // Optimistic update for instant UI feedback
-      const statusMap: Record<ListenSessionStatus, ListenSessionStatus> = {
-        beforeSession: 'inSession',
-        inSession: 'afterSession',
-        afterSession: 'beforeSession',
-      };
-      const nextStatus: ListenSessionStatus = statusMap[listenSessionStatus] || 'beforeSession';
+      const nextStatus: ListenSessionStatus = isStoppingRecording ? 'afterSession' : 'inSession';
 
       setListenSessionStatus(nextStatus);
       console.log('[useSessionState] Optimistic status update:', listenSessionStatus, '→', nextStatus);
 
-      // Reset loading state immediately after optimistic update
-      setIsTogglingSession(false);
-
       if (window.api) {
-        await window.api.mainHeader.sendListenButtonClick(listenButtonText);
+        const result = await window.api.mainHeader.sendListenButtonClick(listenButtonText);
+        const success = typeof (result as any)?.success === 'boolean' ? (result as any).success : true;
+        if (!success) {
+          setListenSessionStatus('beforeSession');
+          return;
+        }
 
         // 开始收音时启动心跳上报
         if (isStartingRecording) {
@@ -80,7 +73,9 @@ export function useSessionState() {
       }
     } catch (error) {
       console.error('IPC invoke for session change failed:', error);
-      // On error, the backend response will reset the status correctly
+      // On error, rollback and allow retry
+      setListenSessionStatus('beforeSession');
+    } finally {
       setIsTogglingSession(false);
     }
   }, [isTogglingSession, listenSessionStatus, getListenButtonText]);
