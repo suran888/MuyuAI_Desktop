@@ -1,7 +1,7 @@
 {
     "name": "muyu-ai-desktop",
     "productName": "muyu",
-    "version": "v1.0.29",
+    "version": "v1.0.30",
     "description": "幕语实时语音字幕",
     "main": "src/index.js",
     "scripts": {

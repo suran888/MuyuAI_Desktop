@@ -11,13 +11,13 @@ export function Frame12({ onClick }: Frame12Props) {
 
   return (
     <div
-      className="relative"
+      className="relative size-[20px]"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
       <button
         onClick={onClick}
-        className="relative overflow-clip size-[20px] cursor-pointer bg-transparent border-none p-0 focus:outline-none"
+        className="block relative overflow-clip size-[20px] cursor-pointer bg-transparent border-none p-0 focus:outline-none"
         data-name="Frame"
       >
         <div className="absolute left-0 size-[16px] top-0">

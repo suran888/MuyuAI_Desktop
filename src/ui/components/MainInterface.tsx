@@ -357,7 +357,7 @@ export function MainInterface({
         )}
       </div>
       <div
-        className="absolute top-[16px] flex items-center flex-col justify-between z-10"
+        className="absolute top-[16px] flex items-center flex-col justify-between z-10 pb-[6px]"
         style={{ left: containerWidth - 49, height: containerHeight - 32 }}
       >
         <div className="flex items-center flex-col gap-[18px]">
@@ -373,8 +373,12 @@ export function MainInterface({
         </div>
         <div className="flex items-center flex-col gap-[18px]">
           {/* 侧边栏按钮 */}
-          <HideWindowButton onClick={onHideWindow} />
-          <Frame12 onClick={onToggleSettings} />
+          <div className="relative top-[6px]">
+            <HideWindowButton onClick={onHideWindow} />
+          </div>
+          <div className="pt-[2px]">
+            <Frame12 onClick={onToggleSettings} />
+          </div>
         </div>
       </div>
       {/* 快捷键设置面板 */}
