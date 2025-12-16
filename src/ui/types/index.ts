@@ -12,6 +12,8 @@ export interface HeaderPosition {
 export interface WindowDimensions {
   width: number;
   height: number;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 export interface Shortcuts {

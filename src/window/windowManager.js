@@ -76,8 +76,8 @@ const moveWindowStep = (direction) => {
     internalBridge.emit('window:moveStep', { direction });
 };
 
-const resizeHeaderWindow = ({ width, height }) => {
-    internalBridge.emit('window:resizeHeaderWindow', { width, height });
+const resizeHeaderWindow = ({ width, height, minWidth, minHeight }) => {
+    internalBridge.emit('window:resizeHeaderWindow', { width, height, minWidth, minHeight });
 };
 
 const handleHeaderAnimationFinished = (state) => {
@@ -154,16 +154,23 @@ function setupWindowController(windowPool, layoutManager, movementManager) {
         }
     });
 
-    internalBridge.on('window:resizeHeaderWindow', ({ width, height }) => {
+    internalBridge.on('window:resizeHeaderWindow', ({ width, height, minWidth, minHeight }) => {
         // 最小尺寸限制
-        const MIN_WIDTH = 524;
-        const MIN_HEIGHT = 393;
+        const MIN_WIDTH = typeof minWidth === 'number' ? minWidth : 524;
+        const MIN_HEIGHT = typeof minHeight === 'number' ? minHeight : 393;
         const safeWidth = Math.max(MIN_WIDTH, width);
         const safeHeight = Math.max(MIN_HEIGHT, height);
 
         // Support resizing main window if it's active
         const mainWin = windowPool.get('main');
         if (mainWin && !mainWin.isDestroyed() && mainWin.isVisible()) {
+            // 对系统原生缩放生效：动态设置主窗口最小尺寸
+            try {
+                mainWin.setMinimumSize(MIN_WIDTH, MIN_HEIGHT);
+            } catch (e) {
+                console.error('[WindowManager] setMinimumSize failed:', e);
+            }
+
             const bounds = mainWin.getBounds();
             let newX = bounds.x;
 
@@ -1070,9 +1077,11 @@ const handleHeaderStateChanged = (state) => {
 // 存储每个窗口的 resize 起始状态
 const windowResizeState = new Map();
 
-function resizeMainWindow(senderWebContents, { edge, deltaX, deltaY, startWidth, startHeight }) {
+function resizeMainWindow(senderWebContents, { edge, deltaX, deltaY, startWidth, startHeight, minWidth }) {
     const win = BrowserWindow.fromWebContents(senderWebContents);
     if (!win || win.isDestroyed()) return;
+
+    console.log('[resizeMainWindow] Received minWidth:', minWidth);
 
     const currentBounds = win.getBounds();
     const display = getCurrentDisplay(win);
@@ -1093,8 +1102,8 @@ function resizeMainWindow(senderWebContents, { edge, deltaX, deltaY, startWidth,
 
     let newBounds = { ...startBounds };
 
-    // 最小尺寸限制 - 确保窗口内容能正确显示
-    const MIN_WIDTH = 524;
+    // 最小尺寸限制 - 使用传递的动态最小宽度（面板打开时 988px，关闭时 524px）
+    const MIN_WIDTH = minWidth || 524;
     const MIN_HEIGHT = 393;
 
     // 根据边沿方向调整窗口大小

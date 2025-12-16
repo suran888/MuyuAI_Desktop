@@ -88,7 +88,8 @@ export function MainInterface({
   const BASE_PANEL_WIDTH = 458;
   const BASE_SETTINGS_WIDTH = 298;
   const MIN_LEFT_WIDTH = 400; // 左侧最小宽度
-  const MIN_PANEL_WIDTH = 300; // 右侧面板最小宽度
+  const MIN_PANEL_WIDTH = 458; // 右侧普通面板最小宽度
+  const MIN_SETTINGS_WIDTH = 298; // 右侧设置面板最小宽度
   const GAP = 6;
 
   // 使用 ref 记录上一次的面板状态和左侧宽度，用于平滑过渡
@@ -153,19 +154,20 @@ export function MainInterface({
       return { leftWidth: windowSize.width, rightPanelWidth: 0 };
     }
 
-    // 使用固定的右侧面板宽度
-    const fixedRightWidth = showSettings ? BASE_SETTINGS_WIDTH : BASE_PANEL_WIDTH;
+    // 面板打开时，横向拉伸只调整右侧面板宽度，左侧保持不变
+    // 使用上次保存的左侧宽度
+    const savedLeftWidth = lastLeftWidthRef.current;
     
-    // 左侧宽度 = 窗口宽度 - 右侧面板宽度 - 间距
-    const calculatedLeftWidth = windowSize.width - fixedRightWidth - GAP;
+    // 右侧面板宽度 = 窗口宽度 - 左侧宽度 - 间距
+    const calculatedRightWidth = windowSize.width - savedLeftWidth - GAP;
     
-    // 确保左侧最小宽度
-    const finalLeftWidth = Math.max(MIN_LEFT_WIDTH, calculatedLeftWidth);
-    lastLeftWidthRef.current = finalLeftWidth;
+    // 确保右侧面板最小宽度（根据面板类型区分）
+    const minRightWidth = showSettings ? MIN_SETTINGS_WIDTH : MIN_PANEL_WIDTH;
+    const finalRightWidth = Math.max(minRightWidth, calculatedRightWidth);
 
     return {
-      leftWidth: finalLeftWidth,
-      rightPanelWidth: fixedRightWidth
+      leftWidth: savedLeftWidth,
+      rightPanelWidth: finalRightWidth
     };
   }, [windowSize.width, activePanel, showSettings]);
 
@@ -176,6 +178,16 @@ export function MainInterface({
   const RESIZE_HANDLE_SIZE = 12; // 窗口边沿拖拽区域大小（像素）- 增大以提高捕获率
   const resizeStateRef = useRef<{ isResizing: boolean; edge: string | null; startX: number; startY: number; startWidth: number; startHeight: number } | null>(null);
 
+  // 计算当前状态下的最小窗口宽度
+  const minWindowWidth = useMemo(() => {
+    const isPanelOpen = !!(activePanel || showSettings);
+    if (!isPanelOpen) {
+      return 524; // 面板关闭时，最小宽度 524px
+    }
+    // 面板打开时，最小宽度 988px
+    return 988;
+  }, [activePanel, showSettings]);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!resizeStateRef.current?.isResizing) return;
@@ -185,7 +197,7 @@ export function MainInterface({
       const deltaY = e.screenY - startY;
 
       if ((window.api?.headerController as any)?.resizeMainWindow) {
-        (window.api.headerController as any).resizeMainWindow({ edge, deltaX, deltaY, startWidth, startHeight });
+        (window.api.headerController as any).resizeMainWindow({ edge, deltaX, deltaY, startWidth, startHeight, minWidth: minWindowWidth });
       }
     };
 
@@ -210,7 +222,7 @@ export function MainInterface({
       window.removeEventListener('mousemove', handleMouseMove, true);
       window.removeEventListener('mouseup', handleMouseUp, true);
     };
-  }, []);
+  }, [minWindowWidth]);
 
   const handleResizeStart = (edge: string, e: React.MouseEvent) => {
     e.stopPropagation();

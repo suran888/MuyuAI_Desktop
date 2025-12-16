@@ -395,19 +395,26 @@ export function MainInterfaceContainer() {
       leftWidth = currentWidth;
     }
 
+    const MIN_LEFT_WIDTH = 400;
+    const effectiveLeftWidth = Math.max(MIN_LEFT_WIDTH, leftWidth);
+
     // 计算新的窗口宽度
     let newWidth: number;
     if (isPanelOpen) {
       if (activePanel) {
-        newWidth = leftWidth + 458 + 6;
+        newWidth = effectiveLeftWidth + 458 + 6;
       } else if (showSettings) {
-        newWidth = leftWidth + 298 + 6;
+        newWidth = effectiveLeftWidth + 298 + 6;
       } else {
-        newWidth = leftWidth;
+        newWidth = effectiveLeftWidth;
       }
     } else {
-      newWidth = leftWidth;
+      newWidth = effectiveLeftWidth;
     }
+
+    const minWidth = isPanelOpen
+      ? effectiveLeftWidth + (showSettings ? 298 : 458) + 6
+      : 524;
 
     // 获取当前窗口高度
     const height = window.innerHeight || 393;
@@ -419,7 +426,7 @@ export function MainInterfaceContainer() {
     });
 
     if (window.api?.headerController?.resizeHeaderWindow) {
-      window.api.headerController.resizeHeaderWindow({ width: newWidth, height }).catch(console.error);
+      window.api.headerController.resizeHeaderWindow({ width: newWidth, height, minWidth }).catch(console.error);
     }
 
     // 更新之前的状态
