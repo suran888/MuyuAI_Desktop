@@ -28,7 +28,8 @@ if (shouldUseLiquidGlass) {
 }
 /* ────────────────[ GLASS BYPASS ]─────────────── */
 
-let isContentProtectionOn = true;  // 这个字段控制整个窗口的默认显示与隐藏 true: 隐藏；false：显示
+let isContentProtectionOn = process.env.MUYU_CONTENT_PROTECTION !== 'false';  // 这个字段控制整个窗口的默认显示与隐藏 true: 隐藏；false：显示
+let isAlwaysOnTopOn = process.env.MUYU_ALWAYS_ON_TOP !== 'false';
 let lastVisibleWindows = new Set(['header']);
 
 let currentHeaderState = 'apikey';
@@ -196,7 +197,7 @@ function setupWindowController(windowPool, layoutManager, movementManager) {
                 width: safeWidth,
                 height: safeHeight
             });
-            
+
             // 通知渲染进程窗口大小已变化
             mainWin.webContents.send('window:size-changed', {
                 width: safeWidth,
@@ -351,7 +352,7 @@ async function handleWindowVisibilityRequest(windowPool, layoutManager, movement
                 win.__lockedByButton = true;
                 win.show();
                 win.moveTop();
-                win.setAlwaysOnTop(true);
+                win.setAlwaysOnTop(isAlwaysOnTopOn);
             } else {
                 console.warn('[WindowManager] Could not calculate settings window position.');
             }
@@ -381,9 +382,9 @@ async function handleWindowVisibilityRequest(windowPool, layoutManager, movement
             if (newBounds) win.setBounds(newBounds);
 
             if (process.platform === 'darwin') {
-                win.setAlwaysOnTop(true, 'screen-saver');
+                win.setAlwaysOnTop(isAlwaysOnTopOn, 'screen-saver');
             } else {
-                win.setAlwaysOnTop(true);
+                win.setAlwaysOnTop(isAlwaysOnTopOn);
             }
             // globalShortcut.unregisterAll();
             disableClicks(win);
@@ -744,7 +745,7 @@ function createFeatureWindows(header, namesToCreate) {
                     height: 720,
                     modal: false,
                     parent: undefined,
-                    alwaysOnTop: true,
+                    alwaysOnTop: isAlwaysOnTopOn,
                     titleBarOverlay: false,
                 });
 
@@ -838,7 +839,7 @@ function createWindows() {
         transparent: true,
         vibrancy: false,
         hasShadow: false,
-        alwaysOnTop: true,
+        alwaysOnTop: isAlwaysOnTopOn, // 确保窗口始终置顶
         skipTaskbar: true,
         hiddenInMissionControl: true,
         resizable: false,
@@ -1173,7 +1174,7 @@ function resizeMainWindow(senderWebContents, { edge, deltaX, deltaY, startWidth,
     newBounds.height = Math.max(MIN_HEIGHT, newBounds.height);
 
     win.setBounds(newBounds);
-    
+
     // 通知渲染进程窗口大小已变化
     senderWebContents.send('window:size-changed', {
         width: newBounds.width,
