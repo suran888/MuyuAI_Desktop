@@ -378,7 +378,7 @@ class PasscodeService {
             this.sessionPingTimer = null;
         }
 
-        return { success: true, skipped: true }
+        // return { success: true, skipped: true }
         // TODO 临时跳过 stop session logic for debug
 
         const targetSessionId = sessionId || this.activeSession?.session_id || this.activeSession?.sessionId;
