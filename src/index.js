@@ -8,27 +8,20 @@ try {
 } catch (err) {
 }
 
-// Load environment variables based on NODE_ENV
 const path = require('path');
 const { app } = require('electron');
 const fs = require('fs');
-const { applyEnvironmentDefaults } = require('./features/common/config/constants');
+const { loadEnvironment } = require('./features/common/config/constants');
 
+// Load environment variables based on NODE_ENV and packaged state
+const envPath = loadEnvironment(app);
 const nodeEnv = process.env.NODE_ENV || 'production';
 const envFile = nodeEnv === 'production' ? '.env.production' : '.env';
 
-// Try multiple paths for .env file (development and packaged app)
-let envPath = path.resolve(process.cwd(), envFile);
-if (!fs.existsSync(envPath) && app && app.isPackaged) {
-    // In packaged app, try app resources path
-    envPath = path.join(process.resourcesPath, envFile);
-}
-
 if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
+    console.log(`[Config] Loading environment from: ${envFile} (NODE_ENV: ${nodeEnv})`);
 } else {
-    // Fallback: Apply environment defaults if .env file is not found
-    applyEnvironmentDefaults(nodeEnv);
+    console.log(`[Config] Using ${nodeEnv} defaults (.env file not found)`);
 }
 
 if (require('electron-squirrel-startup')) {

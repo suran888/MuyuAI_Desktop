@@ -1,7 +1,5 @@
-/**
- * Application-wide constants and default values
- * 应用全局常量和默认值配置
- */
+const path = require('path');
+const fs = require('fs');
 
 // Production environment defaults
 // 生产环境默认配置
@@ -92,6 +90,35 @@ function applyEnvironmentDefaults(env = 'production') {
     process.env.STT_BACKEND_ENDPOINT = process.env.STT_BACKEND_ENDPOINT || defaults.STT_BACKEND_ENDPOINT;
 }
 
+/**
+ * Unified environment variable loading logic
+ * 统一的环境变量加载逻辑
+ * @param {object} app - Electron app object (optional)
+ * @returns {string} The loaded environment path
+ */
+function loadEnvironment(app = null) {
+    const nodeEnv = process.env.NODE_ENV || 'production';
+    const envFile = nodeEnv === 'production' ? '.env.production' : '.env';
+    
+    // Load dotenv
+    const dotenv = require('dotenv');
+    
+    // Try multiple paths for .env file
+    let envPath = path.resolve(process.cwd(), envFile);
+    if (!fs.existsSync(envPath) && app && app.isPackaged) {
+        envPath = path.join(process.resourcesPath, envFile);
+    }
+    
+    if (fs.existsSync(envPath)) {
+        dotenv.config({ path: envPath });
+    }
+    
+    // Always apply defaults for missing variables
+    applyEnvironmentDefaults(nodeEnv);
+    
+    return envPath;
+}
+
 module.exports = {
     PRODUCTION_DEFAULTS,
     DEVELOPMENT_DEFAULTS,
@@ -100,4 +127,5 @@ module.exports = {
     USER_DEFAULTS,
     getEnvironmentDefaults,
     applyEnvironmentDefaults,
+    loadEnvironment,
 };

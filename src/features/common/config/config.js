@@ -3,32 +3,23 @@
 const path = require('path');
 const fs = require('fs');
 const { app } = require('electron');
-const { applyEnvironmentDefaults, PRODUCTION_DEFAULTS, APP_DEFAULTS } = require('./constants');
+const { loadEnvironment, PRODUCTION_DEFAULTS, APP_DEFAULTS } = require('./constants');
 
-// Determine which .env file to load
+// Load environment variables
+const envPath = loadEnvironment(app);
 const nodeEnv = process.env.NODE_ENV || 'production';
 const envFile = nodeEnv === 'production' ? '.env.production' : '.env';
 
-// Try multiple paths for .env file
-let envPath = path.resolve(process.cwd(), envFile);
-if (!fs.existsSync(envPath) && app && app.isPackaged) {
-    envPath = path.join(process.resourcesPath, envFile);
-}
-
-// Load the appropriate .env file
 if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
     console.log(`[Config] Loading environment from: ${envFile} (NODE_ENV: ${nodeEnv})`);
 } else {
-    // Fallback to environment defaults
-    applyEnvironmentDefaults(nodeEnv);
     console.log(`[Config] Using ${nodeEnv} defaults (.env file not found)`);
 }
 
 const os = require('os');
 
-const apiUrl = process.env.MUYU_API_DOMAIN || PRODUCTION_DEFAULTS.API_DOMAIN;
-const webUrl = process.env.MUYU_WEB_URL || PRODUCTION_DEFAULTS.WEB_URL;
+const apiUrl = process.env.MUYU_API_DOMAIN;
+const webUrl = process.env.MUYU_WEB_URL;
 const apiTimeout = process.env.MUYU_API_TIMEOUT || APP_DEFAULTS.API_TIMEOUT;
 
 class Config {

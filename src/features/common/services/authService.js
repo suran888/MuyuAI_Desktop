@@ -1,30 +1,9 @@
-// 确保环境变量在使用前已加载
-const path = require('path');
-const { app } = require('electron');
-const fs = require('fs');
-const { applyEnvironmentDefaults, PRODUCTION_DEFAULTS, API_PATHS, USER_DEFAULTS } = require('../config/constants');
-
-const nodeEnv = process.env.NODE_ENV || 'production';
-const envFile = nodeEnv === 'production' ? '.env.production' : '.env';
-
-// Try multiple paths for .env file
-let envPath = path.resolve(process.cwd(), envFile);
-if (!fs.existsSync(envPath) && app && app.isPackaged) {
-    envPath = path.join(process.resourcesPath, envFile);
-}
-
-if (fs.existsSync(envPath)) {
-    require('dotenv').config({ path: envPath });
-} else {
-    // Fallback to environment defaults
-    applyEnvironmentDefaults(nodeEnv);
-}
+const { API_PATHS, USER_DEFAULTS } = require('../config/constants');
 
 const { BrowserWindow } = require('electron');
 const fetch = require('node-fetch');
 const sessionRepository = require('../repositories/session');
 
-const DEFAULT_API_DOMAIN = PRODUCTION_DEFAULTS.API_DOMAIN;
 const INTERVIEW_LOGIN_PATH = API_PATHS.INTERVIEW_LOGIN;
 
 class AuthService {
@@ -106,7 +85,7 @@ class AuthService {
     }
 
     _getApiDomain() {
-        const domain = (process.env.MUYU_API_DOMAIN || DEFAULT_API_DOMAIN).trim().replace(/\/$/, '');
+        const domain = (process.env.MUYU_API_DOMAIN || '').trim().replace(/\/$/, '');
         console.log('[AuthService] API domain:', domain);
         return domain;
     }
