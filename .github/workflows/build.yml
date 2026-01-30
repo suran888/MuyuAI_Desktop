@@ -18,11 +18,15 @@ jobs:
                     - os: macos-15
                       buildArgs: '--mac --x64'
                       artifactName: mac-intel
-                      artifactPath: 'dist/*.{dmg,zip}'
+                      artifactPath: |
+                          dist/*.dmg
+                          dist/*.zip
                     - os: macos-14
                       buildArgs: '--mac --arm64'
                       artifactName: mac-apple-silicon
-                      artifactPath: 'dist/*.{dmg,zip}'
+                      artifactPath: |
+                          dist/*.dmg
+                          dist/*.zip
                     - os: windows-latest
                       buildArgs: '--win nsis'
                       artifactName: windows-exe
@@ -114,19 +118,36 @@ jobs:
                   VERSION="${{ github.ref_name }}"
                   VERSION_NUM="${VERSION#v}"  # Remove v prefix
 
-                  # Find build artifacts
-                  MAC_ARM64_DMG=$(find artifacts -name "*-mac-arm64.dmg" -type f | head -1)
-                  MAC_ARM64_ZIP=$(find artifacts -name "*-mac-arm64.zip" -type f | head -1)
-                  MAC_X64_DMG=$(find artifacts -name "*-mac-x64.dmg" -type f | head -1)
-                  MAC_X64_ZIP=$(find artifacts -name "*-mac-x64.zip" -type f | head -1)
-                  WIN_EXE=$(find artifacts -name "*-win-x64.exe" -type f | head -1)
+                  # List all files for debugging
+                  echo "📂 All downloaded artifacts:"
+                  find artifacts -type f
+
+                  # Robustly find artifacts using full paths
+                  MAC_ARM64_DMG_PATH=$(find artifacts -name "*mac*arm64*.dmg" -type f | head -1)
+                  MAC_ARM64_ZIP_PATH=$(find artifacts -name "*mac*arm64*.zip" -type f | head -1)
+                  MAC_X64_DMG_PATH=$(find artifacts -name "*mac*x64*.dmg" -type f | head -1)
+                  MAC_X64_ZIP_PATH=$(find artifacts -name "*mac*x64*.zip" -type f | head -1)
+                  WIN_EXE_PATH=$(find artifacts -name "*win*x64*.exe" -type f | head -1)
+
+                  # Validate mandatory files exist
+                  if [ -z "$MAC_ARM64_DMG_PATH" ] || [ -z "$MAC_ARM64_ZIP_PATH" ] || [ -z "$WIN_EXE_PATH" ]; then
+                    echo "❌ Critical artifacts missing! Check build logs."
+                    exit 1
+                  fi
+
+                  # Extract filenames for YAML
+                  MAC_ARM64_DMG=$(basename "$MAC_ARM64_DMG_PATH")
+                  MAC_ARM64_ZIP=$(basename "$MAC_ARM64_ZIP_PATH")
+                  MAC_X64_DMG=$(basename "$MAC_X64_DMG_PATH")
+                  MAC_X64_ZIP=$(basename "$MAC_X64_ZIP_PATH")
+                  WIN_EXE=$(basename "$WIN_EXE_PATH")
 
                   echo "Found artifacts:"
-                  echo "  MAC_ARM64_DMG: $MAC_ARM64_DMG"
-                  echo "  MAC_ARM64_ZIP: $MAC_ARM64_ZIP"
-                  echo "  MAC_X64_DMG: $MAC_X64_DMG"
-                  echo "  MAC_X64_ZIP: $MAC_X64_ZIP"
-                  echo "  WIN_EXE: $WIN_EXE"
+                  echo "  MAC_ARM64_DMG: $MAC_ARM64_DMG ($MAC_ARM64_DMG_PATH)"
+                  echo "  MAC_ARM64_ZIP: $MAC_ARM64_ZIP ($MAC_ARM64_ZIP_PATH)"
+                  echo "  MAC_X64_DMG: $MAC_X64_DMG ($MAC_X64_DMG_PATH)"
+                  echo "  MAC_X64_ZIP: $MAC_X64_ZIP ($MAC_X64_ZIP_PATH)"
+                  echo "  WIN_EXE: $WIN_EXE ($WIN_EXE_PATH)"
 
                   # Generate sha512 in base64 format (electron-updater requirement)
                   get_sha512_base64() {
@@ -134,47 +155,47 @@ jobs:
                   }
 
                   # Generate latest-mac.yml (macOS)
-                  MAC_ARM64_DMG_SHA512=$(get_sha512_base64 "$MAC_ARM64_DMG")
-                  MAC_ARM64_DMG_SIZE=$(stat -c%s "$MAC_ARM64_DMG")
-                  MAC_ARM64_ZIP_SHA512=$(get_sha512_base64 "$MAC_ARM64_ZIP")
-                  MAC_ARM64_ZIP_SIZE=$(stat -c%s "$MAC_ARM64_ZIP")
+                  MAC_ARM64_DMG_SHA512=$(get_sha512_base64 "$MAC_ARM64_DMG_PATH")
+                  MAC_ARM64_DMG_SIZE=$(stat -c%s "$MAC_ARM64_DMG_PATH")
+                  MAC_ARM64_ZIP_SHA512=$(get_sha512_base64 "$MAC_ARM64_ZIP_PATH")
+                  MAC_ARM64_ZIP_SIZE=$(stat -c%s "$MAC_ARM64_ZIP_PATH")
 
-                  MAC_X64_DMG_SHA512=$(get_sha512_base64 "$MAC_X64_DMG")
-                  MAC_X64_DMG_SIZE=$(stat -c%s "$MAC_X64_DMG")
-                  MAC_X64_ZIP_SHA512=$(get_sha512_base64 "$MAC_X64_ZIP")
-                  MAC_X64_ZIP_SIZE=$(stat -c%s "$MAC_X64_ZIP")
+                  MAC_X64_DMG_SHA512=$(get_sha512_base64 "$MAC_X64_DMG_PATH")
+                  MAC_X64_DMG_SIZE=$(stat -c%s "$MAC_X64_DMG_PATH")
+                  MAC_X64_ZIP_SHA512=$(get_sha512_base64 "$MAC_X64_ZIP_PATH")
+                  MAC_X64_ZIP_SIZE=$(stat -c%s "$MAC_X64_ZIP_PATH")
 
                   cat > artifacts/latest-mac.yml << EOF
                   version: ${VERSION_NUM}
                   files:
-                    - url: muyu-${VERSION}-mac-arm64.zip
+                    - url: ${MAC_ARM64_ZIP}
                       sha512: ${MAC_ARM64_ZIP_SHA512}
                       size: ${MAC_ARM64_ZIP_SIZE}
-                    - url: muyu-${VERSION}-mac-arm64.dmg
+                    - url: ${MAC_ARM64_DMG}
                       sha512: ${MAC_ARM64_DMG_SHA512}
                       size: ${MAC_ARM64_DMG_SIZE}
-                    - url: muyu-${VERSION}-mac-x64.zip
+                    - url: ${MAC_X64_ZIP}
                       sha512: ${MAC_X64_ZIP_SHA512}
                       size: ${MAC_X64_ZIP_SIZE}
-                    - url: muyu-${VERSION}-mac-x64.dmg
+                    - url: ${MAC_X64_DMG}
                       sha512: ${MAC_X64_DMG_SHA512}
                       size: ${MAC_X64_DMG_SIZE}
-                  path: muyu-${VERSION}-mac-arm64.zip
+                  path: ${MAC_ARM64_ZIP}
                   sha512: ${MAC_ARM64_ZIP_SHA512}
                   releaseDate: $(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
                   EOF
 
                   # Generate latest.yml (Windows)
-                  WIN_SHA512=$(get_sha512_base64 "$WIN_EXE")
-                  WIN_SIZE=$(stat -c%s "$WIN_EXE")
+                  WIN_SHA512=$(get_sha512_base64 "$WIN_EXE_PATH")
+                  WIN_SIZE=$(stat -c%s "$WIN_EXE_PATH")
 
                   cat > artifacts/latest.yml << EOF
                   version: ${VERSION_NUM}
                   files:
-                    - url: muyu-${VERSION}-win-x64.exe
+                    - url: ${WIN_EXE}
                       sha512: ${WIN_SHA512}
                       size: ${WIN_SIZE}
-                  path: muyu-${VERSION}-win-x64.exe
+                  path: ${WIN_EXE}
                   sha512: ${WIN_SHA512}
                   releaseDate: $(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
                   EOF
