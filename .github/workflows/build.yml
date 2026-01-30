@@ -16,13 +16,13 @@ jobs:
             matrix:
                 include:
                     - os: macos-15
-                      buildArgs: '--mac dmg --x64'
-                      artifactName: mac-intel-dmg
-                      artifactPath: 'dist/*.dmg'
+                      buildArgs: '--mac --x64'
+                      artifactName: mac-intel
+                      artifactPath: 'dist/*.{dmg,zip}'
                     - os: macos-14
-                      buildArgs: '--mac dmg --arm64'
-                      artifactName: mac-apple-silicon-dmg
-                      artifactPath: 'dist/*.dmg'
+                      buildArgs: '--mac --arm64'
+                      artifactName: mac-apple-silicon
+                      artifactPath: 'dist/*.{dmg,zip}'
                     - os: windows-latest
                       buildArgs: '--win nsis'
                       artifactName: windows-exe
@@ -116,12 +116,16 @@ jobs:
 
                   # Find build artifacts
                   MAC_ARM64_DMG=$(find artifacts -name "*-mac-arm64.dmg" -type f | head -1)
+                  MAC_ARM64_ZIP=$(find artifacts -name "*-mac-arm64.zip" -type f | head -1)
                   MAC_X64_DMG=$(find artifacts -name "*-mac-x64.dmg" -type f | head -1)
+                  MAC_X64_ZIP=$(find artifacts -name "*-mac-x64.zip" -type f | head -1)
                   WIN_EXE=$(find artifacts -name "*-win-x64.exe" -type f | head -1)
 
                   echo "Found artifacts:"
                   echo "  MAC_ARM64_DMG: $MAC_ARM64_DMG"
+                  echo "  MAC_ARM64_ZIP: $MAC_ARM64_ZIP"
                   echo "  MAC_X64_DMG: $MAC_X64_DMG"
+                  echo "  MAC_X64_ZIP: $MAC_X64_ZIP"
                   echo "  WIN_EXE: $WIN_EXE"
 
                   # Generate sha512 in base64 format (electron-updater requirement)
@@ -130,22 +134,33 @@ jobs:
                   }
 
                   # Generate latest-mac.yml (macOS)
-                  MAC_ARM64_SHA512=$(get_sha512_base64 "$MAC_ARM64_DMG")
-                  MAC_ARM64_SIZE=$(stat -c%s "$MAC_ARM64_DMG")
-                  MAC_X64_SHA512=$(get_sha512_base64 "$MAC_X64_DMG")
-                  MAC_X64_SIZE=$(stat -c%s "$MAC_X64_DMG")
+                  MAC_ARM64_DMG_SHA512=$(get_sha512_base64 "$MAC_ARM64_DMG")
+                  MAC_ARM64_DMG_SIZE=$(stat -c%s "$MAC_ARM64_DMG")
+                  MAC_ARM64_ZIP_SHA512=$(get_sha512_base64 "$MAC_ARM64_ZIP")
+                  MAC_ARM64_ZIP_SIZE=$(stat -c%s "$MAC_ARM64_ZIP")
+
+                  MAC_X64_DMG_SHA512=$(get_sha512_base64 "$MAC_X64_DMG")
+                  MAC_X64_DMG_SIZE=$(stat -c%s "$MAC_X64_DMG")
+                  MAC_X64_ZIP_SHA512=$(get_sha512_base64 "$MAC_X64_ZIP")
+                  MAC_X64_ZIP_SIZE=$(stat -c%s "$MAC_X64_ZIP")
 
                   cat > artifacts/latest-mac.yml << EOF
                   version: ${VERSION_NUM}
                   files:
+                    - url: muyu-${VERSION}-mac-arm64.zip
+                      sha512: ${MAC_ARM64_ZIP_SHA512}
+                      size: ${MAC_ARM64_ZIP_SIZE}
                     - url: muyu-${VERSION}-mac-arm64.dmg
-                      sha512: ${MAC_ARM64_SHA512}
-                      size: ${MAC_ARM64_SIZE}
+                      sha512: ${MAC_ARM64_DMG_SHA512}
+                      size: ${MAC_ARM64_DMG_SIZE}
+                    - url: muyu-${VERSION}-mac-x64.zip
+                      sha512: ${MAC_X64_ZIP_SHA512}
+                      size: ${MAC_X64_ZIP_SIZE}
                     - url: muyu-${VERSION}-mac-x64.dmg
-                      sha512: ${MAC_X64_SHA512}
-                      size: ${MAC_X64_SIZE}
-                  path: muyu-${VERSION}-mac-arm64.dmg
-                  sha512: ${MAC_ARM64_SHA512}
+                      sha512: ${MAC_X64_DMG_SHA512}
+                      size: ${MAC_X64_DMG_SIZE}
+                  path: muyu-${VERSION}-mac-arm64.zip
+                  sha512: ${MAC_ARM64_ZIP_SHA512}
                   releaseDate: $(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
                   EOF
 
@@ -190,7 +205,7 @@ jobs:
 
                   # Flatten artifacts directory structure for upload
                   mkdir -p upload
-                  find artifacts -type f \( -name "*.dmg" -o -name "*.exe" -o -name "*.yml" \) -exec cp {} upload/ \;
+                  find artifacts -type f \( -name "*.dmg" -o -name "*.exe" -o -name "*.zip" -o -name "*.yml" \) -exec cp {} upload/ \;
 
                   echo "📦 Files to upload:"
                   ls -lah upload/

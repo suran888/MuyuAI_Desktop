@@ -17,7 +17,6 @@ publish:
     provider: generic
     url: https://desktop-release.tos-cn-beijing.volces.com/
 
-
 # List of files to be included in the app package
 files:
     - src/**/*
@@ -27,9 +26,9 @@ files:
     - .env.production
 
 asarUnpack:
-    - "src/ui/assets/SystemAudioDump"
-    - "**/node_modules/sharp/**/*"
-    - "**/node_modules/@img/**/*"
+    - 'src/ui/assets/SystemAudioDump'
+    - '**/node_modules/sharp/**/*'
+    - '**/node_modules/@img/**/*'
 
 # Windows configuration
 win:
@@ -43,7 +42,7 @@ win:
     # cscLink: build\certs\glass-dev.pfx
     # cscKeyPassword: "${env.CSC_KEY_PASSWORD}"
     # signtoolOptions:
-      # certificateSubjectName: "Glass Dev Code Signing"
+    # certificateSubjectName: "Glass Dev Code Signing"
 
 # NSIS installer configuration for Windows
 nsis:
@@ -70,4 +69,5 @@ mac:
     # Disable built-in notarization, use custom afterSign hook instead
     notarize: false
     target:
-      - target: dmg
+        - target: dmg
+        - target: zip
