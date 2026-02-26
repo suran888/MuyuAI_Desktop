@@ -108,9 +108,6 @@ export function SettingsPanel({ onClose, onExitInterview, leftWidth }: SettingsP
       setUpdateStatus('checking');
       const result = await settingsApi.checkForUpdates();
       console.log('[SettingsPanel] Check for updates result:', result);
-      if (result.status === 'development') {
-        setUpdateStatus('development');
-      }
     }
   }, []);
 

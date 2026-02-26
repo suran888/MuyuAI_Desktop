@@ -8,8 +8,15 @@ const { USER_DEFAULTS } = require('../config/constants');
 class DatabaseInitializer {
     constructor() {
         this.isInitialized = false;
+        this.dbPath = null;
+        this.dataDir = null;
+        this.sourceDbPath = null;
+    }
+    
+    _ensurePaths() {
+        if (this.dbPath) return;
         
-// Final DB path to be used (writable location)
+        // Final DB path to be used (writable location)
         const userDataPath = app.getPath('userData');
         // In both development and production mode, the database is stored in the userData directory:
         //   macOS: ~/Library/Application Support/Glass/pickleglass.db
@@ -24,6 +31,7 @@ class DatabaseInitializer {
     }
 
     ensureDatabaseExists() {
+        this._ensurePaths();
         if (!fs.existsSync(this.dbPath)) {
             console.log(`[DB] Database not found at ${this.dbPath}. Preparing to create new database...`);
 
@@ -75,6 +83,7 @@ sqliteClient.connect(this.dbPath); // Pass DB path as argument
     }
 
     async ensureDataDirectory() {
+        this._ensurePaths();
         try {
             if (!fs.existsSync(this.dataDir)) {
                 fs.mkdirSync(this.dataDir, { recursive: true });
@@ -89,6 +98,7 @@ sqliteClient.connect(this.dbPath); // Pass DB path as argument
     }
 
     async checkDatabaseExists() {
+        this._ensurePaths();
         try {
             const exists = fs.existsSync(this.dbPath);
             console.log('[DatabaseInitializer] Database file check:', { path: this.dbPath, exists });
@@ -176,6 +186,7 @@ sqliteClient.connect(this.dbPath); // Pass DB path as argument
     }
 
     async getStatus() {
+        this._ensurePaths();
         return {
             isInitialized: this.isInitialized,
             dbPath: this.dbPath,
@@ -186,6 +197,7 @@ sqliteClient.connect(this.dbPath); // Pass DB path as argument
     }
 
     async reset() {
+        this._ensurePaths();
         try {
             console.log('[DatabaseInitializer] Resetting database...');
             
@@ -217,6 +229,7 @@ sqliteClient.connect(this.dbPath); // Pass DB path as argument
     }
 
     getDatabasePath() {
+        this._ensurePaths();
         return this.dbPath;
     }
 }

@@ -38,6 +38,14 @@ class SttService {
         this.myCompletionTimer = null;
         this.theirCompletionTimer = null;
 
+        // Timestamp tracking for new utterance detection
+        this.myLastUpdateTime = 0;
+        this.theirLastUpdateTime = 0;
+
+        // Track last received complete text from Doubao API (for incremental extraction)
+        this.myLastReceivedText = '';
+        this.theirLastReceivedText = '';
+
         // System audio capture
         this.systemAudioProc = null;
 
@@ -79,8 +87,9 @@ class SttService {
                     text: normalizedText,
                     timestamp: Date.now(),
                     isPartial: true,
-                    isFinal: false,
-                    ...extra,
+                    isFinal: false,  // 默认值
+                    ...extra,  // extra 会覆盖默认值
+                    ...payload,  // payload 中的值优先级最高
                 });
             } catch (err) {
                 console.error('[SttService] Failed to emit partial transcript', err);
@@ -174,6 +183,9 @@ class SttService {
         });
         try { console.log('[SttService-Them] stt-update final dispatched'); } catch (e) { }
 
+        // 保存最后完成的 utterance，用于检测下一次是否包含重复内容
+        this.theirLastCompletedUtterance = finalText;
+        
         this.theirCompletionBuffer = '';
         this.theirCompletionTimer = null;
         this.theirCurrentUtterance = '';
@@ -221,12 +233,82 @@ class SttService {
         }, COMPLETION_DEBOUNCE_MS);
     }
 
+    _hasOverlap(current, incoming) {
+        if (!current || !incoming) return false;
+        const minOverlap = 2;
+        const maxOverlap = Math.min(current.length, incoming.length);
+        for (let len = maxOverlap; len >= minOverlap; len--) {
+            if (current.slice(-len) === incoming.slice(0, len)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 计算两个文本之间的重叠长度（用于滑动窗口截断）
+    _calculateOverlapLength(oldText, newText) {
+        if (!oldText || !newText) return 0;
+        // 最长可能重叠长度
+        const maxPossible = Math.min(oldText.length, newText.length);
+        // 至少重叠2个字符才算
+        const minOverlap = 2;
+        
+        for (let len = maxPossible; len >= minOverlap; len--) {
+            if (oldText.slice(-len) === newText.slice(0, len)) {
+                return len;
+            }
+        }
+        return 0;
+    }
+
+    // 检测两个文本是否有共同的开头（用于判断滑动窗口是否重置）
+    _hasCommonStart(text1, text2, minLength = 10) {
+        if (!text1 || !text2 || text1.length < minLength || text2.length < minLength) {
+            return false;
+        }
+        // 检查 text1 的开头是否出现在 text2 的开头
+        const start1 = text1.slice(0, minLength).toLowerCase();
+        const start2 = text2.slice(0, minLength).toLowerCase();
+        // 互相包含或相等
+        return start1 === start2 || start1.includes(start2) || start2.includes(start1);
+    }
+
+    _extractIncrementalText(lastReceived, newComplete) {
+        if (!lastReceived) {
+            // First time receiving text, return the complete text
+            console.log('[SttService] _extractIncrementalText: first text, returning complete');
+            return newComplete;
+        }
+
+        if (!newComplete) {
+            return '';
+        }
+
+        // If newComplete starts with lastReceived, extract the new part
+        if (newComplete.startsWith(lastReceived)) {
+            const incremental = newComplete.slice(lastReceived.length).trim();
+            console.log('[SttService] _extractIncrementalText: extracted incremental', {
+                lastLength: lastReceived.length,
+                newLength: newComplete.length,
+                incrementalLength: incremental.length,
+                incremental: incremental.slice(0, 50)
+            });
+            return incremental;
+        }
+
+        // If newComplete is completely different (new utterance detected elsewhere)
+        // or doesn't start with lastReceived, return the complete new text
+        console.log('[SttService] _extractIncrementalText: new text doesn\'t start with last, returning complete');
+        return newComplete;
+    }
+
     _mergeSlidingWindow(current, incoming) {
         if (!current) return incoming;
         if (!incoming) return current;
 
         // Fast path: incoming extends current (normal accumulation)
         if (incoming.startsWith(current)) {
+            console.log('[SttService] _mergeSlidingWindow: incoming extends current');
             return incoming;
         }
 
@@ -236,11 +318,32 @@ class SttService {
 
         for (let len = maxOverlap; len >= minOverlap; len--) {
             if (current.slice(-len) === incoming.slice(0, len)) {
+                console.log('[SttService] _mergeSlidingWindow: found overlap of length', len);
                 return current + incoming.slice(len);
             }
         }
 
-        // Fallback: if no overlap, assume replacement (standard behavior)
+        // Fallback: Text is different but no clear overlap
+        // This could be:
+        // 1. A correction from the API (e.g., "Ideas" -> "Videos")
+        // 2. A completely new segment
+        // Strategy: Check if incoming contains the essence of current
+        
+        // If current is contained within incoming (even with corrections before/after), use incoming
+        if (incoming.includes(current.slice(0, Math.min(current.length, 20)))) {
+            // Incoming likely contains the corrected/extended version
+            console.log('[SttService] _mergeSlidingWindow: incoming contains current start, using incoming');
+            return incoming;
+        }
+        
+        // If incoming is significantly longer, it likely has more content
+        if (incoming.length > current.length) {
+            console.log('[SttService] _mergeSlidingWindow: incoming is longer, replacing');
+            return incoming;
+        }
+        
+        // Default: trust the API's latest result
+        console.log('[SttService] _mergeSlidingWindow: default to incoming (API latest)');
         return incoming;
     }
 
@@ -380,22 +483,90 @@ class SttService {
                     // For interim results, update the UI in real-time.
                     if (this.myCompletionTimer) clearTimeout(this.myCompletionTimer);
 
-                    this.myCurrentUtterance = text;
+                    // 简化策略：新 Utterance 检测（豆包滑动窗口机制）
+                    const now = Date.now();
+                    const currentUtterance = this.myCurrentUtterance || '';
+                    
+                    // 核心逻辑：
+                    // 1. 如果旧文本 > 20 字符
+                    // 2. 且新文本不以旧文本前 15 个字符开头（说明是滑动窗口重置）
+                    // 3. 且不是完全重复
+                    // → 判定为新 utterance
+                    
+                    const isSignificantlyLong = currentUtterance.length > 20;
+                    const isExtension = text.startsWith(currentUtterance.slice(0, 15));
+                    const isDuplicate = currentUtterance === text || 
+                                       (currentUtterance.length > 5 && text.length > 5 && 
+                                        currentUtterance.includes(text));
+                    
+                    // 简化判断：长文本 + 不是扩展 + 不是重复 = 新 utterance
+                    const isNewUtterance = isSignificantlyLong && !isExtension && !isDuplicate;
+                    
+                    if (isNewUtterance) {
+                        // 计算重叠长度，截断新文本的重复部分
+                        const overlapLen = this._calculateOverlapLength(currentUtterance, text);
+                        const uniquePart = overlapLen > 0 ? text.slice(overlapLen).trim() : text;
+                        
+                        console.log('[SttService-Me-Doubao] NEW UTTERANCE DETECTED:', {
+                            currentLength: currentUtterance.length,
+                            newLength: text.length,
+                            isExtension,
+                            isDuplicate,
+                            overlapLen,
+                            uniquePart: uniquePart.slice(0, 50)
+                        });
+                        
+                        // 1. 先发送 finalize 事件，完成当前 turn
+                        const finalText = (this.myCompletionBuffer + ' ' + currentUtterance).trim();
+                        this.emitPartialTranscript('Me', {
+                            text: finalText,
+                            provider: this.modelInfo?.provider,
+                            isFinal: true  // 标记为 final，触发 finalizeTurn
+                        });
+                        
+                        // 2. 清空 buffer 和 current，开始新的 utterance
+                        this.myCompletionBuffer = '';
+                        this.myCurrentUtterance = uniquePart;
+                        this.myLastReceivedText = ''; // 重置，开始新的轮次
+                        
+                        // 3. 发送新 utterance 的 partial 事件
+                        this.emitPartialTranscript('Me', {
+                            text: uniquePart,
+                            provider: this.modelInfo?.provider,
+                            isFinal: false
+                        });
+                    } else {
+                        // 使用滑动窗口合并策略
+                        // 这个函数会处理：
+                        // 1. 正常累积（新文本以旧文本开头）
+                        // 2. 滑动窗口重置（新文本和旧文本有重叠）
+                        // 3. 完全不同（应该由混合策略处理，这里会替换）
+                        const beforeMerge = this.myCurrentUtterance;
+                        this.myCurrentUtterance = this._mergeSlidingWindow(this.myCurrentUtterance, text);
+                        
+                        console.log('[SttService-Me-Doubao] Merged text:', {
+                            beforeLength: beforeMerge.length,
+                            afterLength: this.myCurrentUtterance.length,
+                            newTextLength: text.length,
+                            beforeText: beforeMerge.slice(-30),
+                            afterText: this.myCurrentUtterance.slice(-30),
+                        });
+                        
+                        const continuousText = (this.myCompletionBuffer + ' ' + this.myCurrentUtterance).trim();
 
-                    const continuousText = (this.myCompletionBuffer + ' ' + this.myCurrentUtterance).trim();
+                        this.sendToRenderer('stt-update', {
+                            speaker: 'Me',
+                            text: continuousText,
+                            isPartial: true,
+                            isFinal: false,
+                            timestamp: Date.now(),
+                        });
 
-                    this.sendToRenderer('stt-update', {
-                        speaker: 'Me',
-                        text: continuousText,
-                        isPartial: true,
-                        isFinal: false,
-                        timestamp: Date.now(),
-                    });
-
-                    this.emitPartialTranscript('Me', {
-                        text: continuousText,
-                        provider: this.modelInfo?.provider,
-                    });
+                        this.emitPartialTranscript('Me', {
+                            text: continuousText,
+                            provider: this.modelInfo?.provider,
+                        });
+                    }
 
                     // Set completion timer to auto-complete after silence
                     this.myCompletionTimer = setTimeout(() => {
@@ -543,41 +714,39 @@ class SttService {
 
                 if (isFinal) {
                     try { console.log('[SttService-Them-Doubao] Final received; flushing immediately'); } catch (e) { }
+                    
+                    // 1. 先清除定时器，避免竞态条件
+                    if (this.theirCompletionTimer) {
+                        try { console.log('[SttService-Them-Doubao] clearing previous completion timer'); } catch (e) { }
+                        clearTimeout(this.theirCompletionTimer);
+                        this.theirCompletionTimer = null;
+                    }
+                    
+                    // 2. 更新状态并 flush
+                    // 注意：debounceTheirCompletion 会把 text 添加到 buffer
+                    // flushTheirCompletion 会合并 buffer + currentUtterance
+                    // 所以这里清空 currentUtterance，避免 text 被重复计算
                     this.theirCurrentUtterance = '';
                     this.debounceTheirCompletion(text);
                     if (this.modelInfo.provider === 'doubao') {
                         this.flushTheirCompletion();
                     }
                 } else {
+                    // ========== isFinal=false: 处理中间结果 ==========
+                    try { console.log('[SttService-Them-Doubao] Partial received; processing interim result'); } catch (e) { }
+                    
                     if (this.theirCompletionTimer) {
-                        try { console.log('[SttService-Them-Doubao] Partial received; clearing previous completion timer'); } catch (e) { }
+                        try { console.log('[SttService-Them-Doubao] clearing previous completion timer'); } catch (e) { }
                         clearTimeout(this.theirCompletionTimer);
                     }
 
-                    // Smart merge: if the new partial text starts with what we've already buffered,
-                    // it means the provider is sending history. We should strip that prefix.
-                    let newPartial = text;
-                    const buffer = this.theirCompletionBuffer || '';
-                    if (buffer && newPartial.startsWith(buffer)) {
-                        newPartial = newPartial.slice(buffer.length).trim();
-                    }
+                    // 更新当前识别内容（用于后续 flush 时计算 finalText）
+                    this.theirCurrentUtterance = text;
 
-                    // Stitching logic for sliding window
-                    this.theirCurrentUtterance = this._mergeSlidingWindow(this.theirCurrentUtterance, newPartial);
+                    // 计算当前展示文本：buffer + 当前识别内容
+                    const continuousText = (this.theirCompletionBuffer + ' ' + text).trim();
 
-                    try {
-                        console.log('[SttService-Them-Doubao] Partial path: updating utterance', {
-                            utteranceLen: (this.theirCurrentUtterance || '').length,
-                            bufferLen: (this.theirCompletionBuffer || '').length,
-                            originalText: text.slice(0, 50),
-                            newPartial: newPartial.slice(0, 50),
-                            stitched: this.theirCurrentUtterance.slice(-50)
-                        });
-                    } catch (e) { }
-
-                    const continuousText = (this.theirCompletionBuffer + ' ' + this.theirCurrentUtterance).trim();
-                    try { console.log('[SttService-Them-Doubao] Partial path: continuousText computed', { continuousLen: (continuousText || '').length }); } catch (e) { }
-
+                    // 1. 同步到 UI（显示中间结果）
                     this.sendToRenderer('stt-update', {
                         speaker: 'Them',
                         text: continuousText,
@@ -585,17 +754,18 @@ class SttService {
                         isFinal: false,
                         timestamp: Date.now(),
                     });
-                    try { console.log('[SttService-Them-Doubao] stt-update partial dispatched (debounce reset on partial)'); } catch (e) { }
 
+                    // 2. 发送事件给 listenService 处理 turn 管理
                     this.emitPartialTranscript('Them', {
                         text: continuousText,
                         provider: this.modelInfo?.provider,
                     });
 
-                    // Reset the completion debounce on partial to enable pause-based auto completion
-                    try { console.log(`[SttService-Them-Doubao] setting completion timer ${COMPLETION_DEBOUNCE_MS}ms (partial)`); } catch (e) { }
+                    // 3. 启动自动完成倒计时（如果在2秒内没有收到新的识别结果，则自动完成）
+                    const COMPLETION_DEBOUNCE_MS = this.modelInfo.provider === 'doubao' ? 2000 : 800;
+                    try { console.log(`[SttService-Them-Doubao] setting completion timer ${COMPLETION_DEBOUNCE_MS}ms (interim)`); } catch (e) { }
                     this.theirCompletionTimer = setTimeout(() => {
-                        try { console.log('[SttService-Them-Doubao] completion timer fired (partial path)'); } catch (e) { }
+                        try { console.log('[SttService-Them-Doubao] completion timer fired (interim path)'); } catch (e) { }
                         this.flushTheirCompletion();
                     }, COMPLETION_DEBOUNCE_MS);
                 }

@@ -9,8 +9,17 @@ try {
 }
 
 const path = require('path');
-const { app } = require('electron');
 const fs = require('fs');
+
+if (require('electron-squirrel-startup')) {
+    process.exit(0);
+}
+
+const electron = require('electron');
+console.log('>>> [DEBUG] electron module:', Object.keys(electron));
+const { app, BrowserWindow, shell, ipcMain, dialog, desktopCapturer, session } = electron;
+console.log('>>> [DEBUG] app after destructuring:', typeof app, app ? 'app exists' : 'app is null/undefined');
+
 const { loadEnvironment } = require('./features/common/config/constants');
 
 // Load environment variables based on NODE_ENV and packaged state
@@ -23,19 +32,14 @@ if (fs.existsSync(envPath)) {
 } else {
     console.log(`[Config] Using ${nodeEnv} defaults (.env file not found)`);
 }
-
-if (require('electron-squirrel-startup')) {
-    process.exit(0);
-}
-
-const { BrowserWindow, shell, ipcMain, dialog, desktopCapturer, session } = require('electron');
 const { createWindows } = require('./window/windowManager.js');
 const listenService = require('./features/listen/listenService');
 
 const databaseInitializer = require('./features/common/services/databaseInitializer');
 const authService = require('./features/common/services/authService');
 const fetch = require('node-fetch');
-const { autoUpdater } = require('electron-updater');
+// Delay autoUpdater import until app is ready
+let autoUpdater;
 const { EventEmitter } = require('events');
 const askService = require('./features/ask/askService');
 const settingsService = require('./features/settings/settingsService');
@@ -389,9 +393,20 @@ function setupWebDataHandlers() {
 let updateStatus = 'idle'; // idle, checking, available, downloading, downloaded, not-available, error
 
 async function initAutoUpdater() {
+    // Delay import autoUpdater until app is ready
+    if (!autoUpdater) {
+        const { autoUpdater: updater } = require('electron-updater');
+        autoUpdater = updater;
+    }
+    
+    /* 屏蔽开发环境检查以允许本地测试更新流程
     if (process.env.NODE_ENV === 'development') {
         console.log('Development environment, skipping auto-updater.');
         return;
+    }
+    */
+    if (process.env.NODE_ENV === 'development') {
+        autoUpdater.forceDevUpdateConfig = true;
     }
 
     try {
@@ -468,11 +483,17 @@ function broadcastUpdateStatus(data) {
 
 // 手动检查更新
 ipcMain.handle('updater:check', async () => {
+    /* 屏蔽开发环境检查 
     if (process.env.NODE_ENV === 'development') {
         return { status: 'development', message: '开发环境不支持更新检查' };
     }
+    */
     
     try {
+        if (!autoUpdater) {
+            const { autoUpdater: updater } = require('electron-updater');
+            autoUpdater = updater;
+        }
         updateStatus = 'checking';
         const result = await autoUpdater.checkForUpdates();
         return { status: 'success', updateInfo: result?.updateInfo };
@@ -495,6 +516,10 @@ ipcMain.handle('updater:get-status', () => {
 // 安装已下载的更新
 ipcMain.handle('updater:install', () => {
     if (updateStatus === 'downloaded') {
+        if (!autoUpdater) {
+            const { autoUpdater: updater } = require('electron-updater');
+            autoUpdater = updater;
+        }
         autoUpdater.quitAndInstall();
         return { status: 'success' };
     }

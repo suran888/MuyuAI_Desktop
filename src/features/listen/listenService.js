@@ -22,6 +22,9 @@ class ListenService {
         this.activeTurns = {};
         this.turnHistory = [];
         this.lastCompletedText = { Me: '', Them: '' };
+        
+        // Track last received complete text from STT (for incremental extraction)
+        this.lastReceivedText = { Me: '', Them: '' };
 
         this.setupServiceCallbacks();
         console.log('[ListenService] Service instance created.');
@@ -67,8 +70,8 @@ class ListenService {
     }
 
     _mapSpeakerForInsights(speaker) {
-        if (speaker === 'Them') return 'Candidate';
-        if (speaker === 'Me') return 'Interviewer';
+        if (speaker === 'Them') return 'Interviewer';
+        if (speaker === 'Me') return 'Candidate';
         return speaker || 'Unknown';
     }
 
@@ -149,6 +152,35 @@ class ListenService {
         }
     }
 
+    _extractIncrementalText(lastReceived, newComplete) {
+        if (!lastReceived) {
+            // First time receiving text, return the complete text
+            console.log('[ListenService] _extractIncrementalText: first text, returning complete');
+            return newComplete;
+        }
+
+        if (!newComplete) {
+            return '';
+        }
+
+        // If newComplete starts with lastReceived, extract the new part
+        if (newComplete.startsWith(lastReceived)) {
+            const incremental = newComplete.slice(lastReceived.length).trim();
+            console.log('[ListenService] _extractIncrementalText: extracted incremental', {
+                lastLength: lastReceived.length,
+                newLength: newComplete.length,
+                incrementalLength: incremental.length,
+                incremental: incremental.slice(0, 50)
+            });
+            return incremental;
+        }
+
+        // If newComplete is completely different (new utterance detected elsewhere)
+        // or doesn't start with lastReceived, return the complete new text
+        console.log('[ListenService] _extractIncrementalText: new text doesn\'t start with last, returning complete');
+        return newComplete;
+    }
+
     serializeTurn(turn) {
         if (!turn) return null;
         return {
@@ -179,6 +211,13 @@ class ListenService {
             trimPrefix: this.lastCompletedText[normalizedSpeaker] || '',
         };
         this.activeTurns[normalizedSpeaker] = turn;
+        
+        console.log('[ListenService] startNewTurn:', {
+            turnId: turn.id,
+            speaker: normalizedSpeaker,
+            turnSequence: this.turnSequence,
+        });
+        
         this.emitTurnUpdate(turn, {
             event: 'started',
             emitTranscript: false,
@@ -194,6 +233,18 @@ class ListenService {
             turn = this.startNewTurn(normalizedSpeaker);
         }
         return turn;
+    }
+
+    // 检测两个文本是否有共同的开头（用于判断滑动窗口是否重置）
+    _hasCommonStart(text1, text2, minLength = 10) {
+        if (!text1 || !text2 || text1.length < minLength || text2.length < minLength) {
+            return false;
+        }
+        // 检查 text1 的开头是否出现在 text2 的开头
+        const start1 = text1.slice(0, minLength).toLowerCase();
+        const start2 = text2.slice(0, minLength).toLowerCase();
+        // 互相包含或相等
+        return start1 === start2 || start1.includes(start2) || start2.includes(start1);
     }
 
     normalizeTextForSpeaker(speaker, rawText, turn) {
@@ -219,9 +270,10 @@ class ListenService {
         if (!turn) return;
 
         const timestamp = extras.timestamp || Date.now();
-        const text = typeof extras.text === 'string'
+        const rawText = typeof extras.text === 'string'
             ? extras.text
             : ((turn.status === 'completed' ? turn.finalText : turn.partialText) || '');
+        const text = this.normalizeTextForSpeaker(turn.speaker, rawText, turn);
         const provider = extras.provider || turn.provider || null;
         const isFinal = extras.isFinal ?? (turn.status === 'completed');
         const isPartial = extras.isPartial ?? !isFinal;
@@ -276,15 +328,25 @@ class ListenService {
         const timestamp = meta.timestamp || Date.now();
         const provider = meta.provider || turn.provider || null;
 
-        const mergedFinal = text;
-        turn.partialText = mergedFinal;
-        turn.finalText = mergedFinal;
+        const cumulativeFinal = text;
+        const normalizedFinal = this.normalizeTextForSpeaker(speaker, cumulativeFinal, turn);
+        
+        turn.partialText = cumulativeFinal;
+        turn.finalText = cumulativeFinal;
         turn.status = 'completed';
         turn.updatedAt = timestamp;
         turn.completedAt = timestamp;
         if (provider) {
             turn.provider = provider;
         }
+
+        console.log('[ListenService] finalizeTurn:', {
+            turnId: turn.id,
+            speaker: normalizedSpeaker,
+            cumulativeLength: cumulativeFinal.length,
+            normalizedLength: normalizedFinal.length,
+            text: normalizedFinal.slice(0, 50),
+        });
 
         this.turnHistory.push(this.serializeTurn(turn));
         if (this.turnHistory.length > 100) {
@@ -294,7 +356,7 @@ class ListenService {
         delete this.activeTurns[normalizedSpeaker];
 
         this.emitTurnUpdate(turn, {
-            text: mergedFinal,
+            text: cumulativeFinal, // emitTurnUpdate will normalize it
             timestamp,
             isPartial: false,
             isFinal: true,
@@ -302,13 +364,14 @@ class ListenService {
             event: 'finalized',
         });
 
-        this.lastCompletedText[normalizedSpeaker] = mergedFinal;
+        // 核心修复：更新 lastCompletedText 为完整的累积文本
+        this.lastCompletedText[normalizedSpeaker] = cumulativeFinal;
 
         if (normalizedSpeaker === 'Them' && this.liveInsightsService) {
             this.liveInsightsService.handleTranscriptUpdate({
                 id: turn.id,
                 speaker: normalizedSpeaker,
-                text,
+                text: normalizedFinal, // AI 只需要增量内容
                 timestamp,
                 isFinal: true,
             }).catch(err => {
@@ -415,20 +478,32 @@ class ListenService {
         console.log(`[ListenService] Transcription complete: ${speaker} - ${text}`);
 
         const normalizedSpeaker = speaker === 'Me' ? 'Me' : 'Them';
+        
+        // text 是 STT 服务传来的完整文本，直接使用
+        // normalizeTextForSpeaker 只用于检测完全重复的情况（返回空字符串）
+        // 不应该用来截断文本
         const activeTurn = this.activeTurns[normalizedSpeaker];
-        const cleanedText = this.normalizeTextForSpeaker(speaker, text, activeTurn);
-        const aggregatedText = cleanedText;
+        const prefix = (activeTurn && activeTurn.trimPrefix) || this.lastCompletedText[normalizedSpeaker] || '';
+        
+        // 如果文本和前缀完全一样，说明是重复，跳过
+        if (text === prefix) {
+            console.log('[ListenService] Skipping duplicate text');
+            return;
+        }
+        
+        const cumulativeText = text;
+        const normalizedText = this.normalizeTextForSpeaker(speaker, cumulativeText);
 
-        this.finalizeTurn(speaker, aggregatedText, {
+        this.finalizeTurn(speaker, cumulativeText, {
             timestamp: Date.now(),
             provider: this.sttService?.modelInfo?.provider || null,
         });
 
-        // Save to database
-        await this.saveConversationTurn(speaker, aggregatedText);
+        // Save to database (normalized)
+        await this.saveConversationTurn(speaker, normalizedText);
 
-        // Add to summary service for analysis
-        this.summaryService.addConversationTurn(speaker, aggregatedText);
+        // Add to summary service for analysis (normalized)
+        this.summaryService.addConversationTurn(speaker, normalizedText);
     }
 
     handlePartialTranscript(partial) {
@@ -441,49 +516,99 @@ class ListenService {
         const timestamp = partial.timestamp || Date.now();
         const provider = partial.provider || this.sttService?.modelInfo?.provider || null;
 
-        const turn = this.getOrCreateActiveTurn(speaker);
-        const normalizedText = this.normalizeTextForSpeaker(speaker, partial.text, turn);
-        const mergedPartial = normalizedText;
-        const hasMeaningfulText = mergedPartial && mergedPartial.trim().length > 0;
-        const partialChanged = mergedPartial !== turn.partialText;
-
-        if (!partialChanged && !partial.isFinal) {
+        // 统一策略：sttService 负责检测新 utterance
+        // listenService 根据 isFinal 和 isNewUtterance 标记执行 turn 管理
+        
+        // 情况1：收到 isFinal=true，表示需要完成当前 turn
+        if (partial.isFinal) {
+            console.log('[ListenService] Received isFinal, finalizing current turn');
+            const turn = this.getOrCreateActiveTurn(speaker);
+            
+            // 关键修复：使用 sttService 发送的 partial.text，而不是 turn.partialText
+            // 因为当检测到新 utterance 时，sttService 会发送旧的完整文本作为 finalText
+            const textToFinalize = partial.text || turn.partialText || '';
+            
+            if (textToFinalize.trim()) {
+                this.finalizeTurn(speaker, textToFinalize, {
+                    timestamp: timestamp - 1,
+                    provider
+                });
+            }
+            // 如果同时标记了 isNewUtterance，表示接下来是新 utterance
+            // 但先不创建，等待下一条消息
             return;
         }
-
-        turn.partialText = mergedPartial;
+        
+        // 情况2：收到 isNewUtterance=true 且不是 isFinal，表示这是新 utterance 的开始
+        if (partial.isNewUtterance) {
+            console.log('[ListenService] Received isNewUtterance mark, checking if need to finalize');
+            const turn = this.getOrCreateActiveTurn(speaker);
+            
+            // 如果当前 turn 有内容且未完成，先 finalize
+            if (turn.partialText && turn.partialText.trim() && turn.status !== 'completed') {
+                console.log('[ListenService] Finalizing previous turn before starting new one');
+                this.finalizeTurn(speaker, turn.partialText, {
+                    timestamp: timestamp - 1,
+                    provider
+                });
+            }
+            
+            // 创建新 turn
+            const newTurn = this.startNewTurn(speaker);
+            newTurn.partialText = partial.text;
+            newTurn.updatedAt = timestamp;
+            if (provider) {
+                newTurn.provider = provider;
+            }
+            
+            console.log('[ListenService] Started new turn for new utterance:', {
+                turnId: newTurn.id,
+                text: partial.text.slice(0, 50)
+            });
+            
+            this.emitTurnUpdate(newTurn, {
+                text: partial.text,
+                timestamp,
+                isPartial: true,
+                isFinal: false,
+                provider,
+                event: 'partial',
+            });
+            return;
+        }
+        
+        // 情况3：正常更新当前 turn
+        const turn = this.getOrCreateActiveTurn(speaker);
+        const newText = partial.text;
+        const currentPartial = turn.partialText || '';
+        
+        // 简单的重复检测
+        if (newText === currentPartial) {
+            return;
+        }
+        
+        turn.partialText = newText;
         turn.updatedAt = timestamp;
         if (provider) {
             turn.provider = provider;
         }
-
-        if (!hasMeaningfulText && !partial.isFinal) {
-            return;
-        }
-
-        if (partial.isFinal) {
-            this.finalizeTurn(speaker, mergedPartial, {
-                timestamp,
-                provider
-            });
-            return;
-        }
-
-        try {
+        
+        // 只记录有意义的更新
+        if (newText && newText.trim().length > 0) {
             console.log('[ListenService] Updating partial transcript', {
                 speaker,
-                text: mergedPartial.slice(0, 120),
+                text: newText.slice(0, 120),
                 turnId: turn.id,
             });
-        } catch (e) { }
+        }
 
         this.emitTurnUpdate(turn, {
-            text: mergedPartial,
+            text: newText,
             timestamp,
-            isPartial: partial.isPartial ?? true,
-            isFinal: partial.isFinal ?? false,
+            isPartial: true,
+            isFinal: false,
             provider,
-            event: partial.isFinal ? 'finalized' : 'partial',
+            event: 'partial',
         });
     }
 

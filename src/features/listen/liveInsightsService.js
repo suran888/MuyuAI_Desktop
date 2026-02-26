@@ -105,6 +105,7 @@ class LiveInsightsService {
     async streamLoop(reader, signal, turnId) {
         this.isStreaming = true;
         this.fullAnswer = '';
+        console.log(`[LiveInsightsService] streamLoop started for turn ${turnId}`);
         this.sendToRenderer('listen:live-answer', {
             turnId,
             status: 'started',
@@ -112,6 +113,7 @@ class LiveInsightsService {
         });
 
         signal.addEventListener('abort', () => {
+            console.log(`[LiveInsightsService] Stream aborted for turn ${turnId}, reason: ${signal.reason}`);
             if (this.reader) {
                 this.reader.cancel(signal.reason).catch(() => {});
             }
@@ -203,6 +205,7 @@ class LiveInsightsService {
                 const token = json.choices?.[0]?.delta?.content || json.token || '';
                 if (token) {
                     this.fullAnswer += token;
+                    console.log(`[LiveInsightsService] Received token for turn ${turnId}: ${token.slice(0, 10)}... (Total length: ${this.fullAnswer.length})`);
                     this.sendToRenderer('listen:live-answer', {
                         turnId,
                         status: 'streaming',
@@ -211,6 +214,7 @@ class LiveInsightsService {
                     });
                 }
             } catch (err) {
+                console.error(`[LiveInsightsService] Error parsing chunk for turn ${turnId}:`, err.message);
                 continue;
             }
             currentEvent = null;

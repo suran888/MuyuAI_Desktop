@@ -269,7 +269,7 @@ class DoubaoSttSession extends EventEmitter {
                     enable_ddc: true,
                     show_utterances: true,
                     enable_nonstream: false,
-                    result_type: 'single' // 结果返回方式: 默认为"full",全量返回。设置为"single"则为增量结果返回，即不返回之前分句的结果。
+                    result_type: 'full' // 结果返回方式: 设置为"full"全量返回，服务端会自动累加历史文本和修正标点。
                 }
             };
 
@@ -302,14 +302,7 @@ class DoubaoSttSession extends EventEmitter {
                 console.log('[DoubaoSTT] --------------------------- text:', text);
                 console.log('[DoubaoSTT] --------------------------- response:', response);
                 if (text) {
-                    // const trimmedLen = text.trim().length;
                     let isFinal = response.isLastPackage || !!response.payloadMsg?.is_final || !!response.payloadMsg?.final;
-                    // if (trimmedLen > 10) {
-                    //     isFinal = true;
-                    //     try {
-                    //         console.log('[DoubaoSTT] Force isFinal by length>10', { len: trimmedLen, preview: text.slice(0, 20) });
-                    //     } catch (e) {}
-                    // }
                     const message = {
                         provider: 'doubao',
                         text,

@@ -30,9 +30,16 @@ export function MainInterfaceContainer() {
   const turnIdPrefixRef = useRef(0);
 
   const sortTurns = useCallback(() => {
-    return (Array.from(turnMapRef.current.values()) as Turn[])
-      .filter((turn: Turn) => turn.question && turn.question.trim().length > 0)
-      .sort((a: Turn, b: Turn) => a.startedAt - b.startedAt);
+    const values = Array.from(turnMapRef.current.values()) as Turn[];
+    const filtered = values.filter((turn: Turn) => turn.question && turn.question.trim().length > 0);
+    const sorted = filtered.sort((a: Turn, b: Turn) => {
+      // 首先按 startedAt 排序，如果相同则按 id 排序确保稳定性
+      const timeDiff = a.startedAt - b.startedAt;
+      if (timeDiff !== 0) return timeDiff;
+      return a.id.localeCompare(b.id);
+    });
+    console.log('[MainInterfaceContainer] sortTurns - total in map:', values.length, 'filtered:', filtered.length, 'ids:', sorted.map(t => t.id));
+    return sorted;
   }, []);
 
   const handleTurnReset = useCallback(() => {
@@ -47,6 +54,9 @@ export function MainInterfaceContainer() {
 
     // 构造带前缀的唯一 ID，防止不同 Session 间的 ID 冲突
     const uniqueId = `${payload.id}_${turnIdPrefixRef.current}`;
+    
+    console.log('[MainInterfaceContainer] handleTurnUpdate - payload.id:', payload.id, 'uniqueId:', uniqueId, 'event:', payload.event, 'status:', payload.status);
+    console.log('[MainInterfaceContainer] handleTurnUpdate - payload.text:', payload.text?.slice(0, 50));
 
     const existing = turnMapRef.current.get(uniqueId) || {
       id: uniqueId,
@@ -74,7 +84,9 @@ export function MainInterfaceContainer() {
     existing.updatedAt = payload.timestamp || Date.now();
 
     turnMapRef.current.set(uniqueId, existing);
-    setTurns(sortTurns());
+    const newTurns = sortTurns();
+    console.log('[MainInterfaceContainer] handleTurnUpdate - new turns length:', newTurns.length);
+    setTurns(newTurns);
   }, [sortTurns]);
 
   const handleLiveAnswer = useCallback((event: any, payload: any) => {
@@ -84,7 +96,12 @@ export function MainInterfaceContainer() {
     const uniqueId = `${payload.turnId}_${turnIdPrefixRef.current}`;
 
     const existing = turnMapRef.current.get(uniqueId);
-    if (!existing) return;
+    if (!existing) {
+      console.log('[MainInterfaceContainer] handleLiveAnswer - turn not found:', uniqueId);
+      return;
+    }
+
+    console.log('[MainInterfaceContainer] handleLiveAnswer - turnId:', payload.turnId, 'hasAnswer:', payload.answer !== undefined, 'hasToken:', !!payload.token, 'status:', payload.status);
 
     if (payload.answer !== undefined) {
       existing.answer = payload.answer;
@@ -102,7 +119,8 @@ export function MainInterfaceContainer() {
 
     existing.updatedAt = Date.now();
     turnMapRef.current.set(uniqueId, existing);
-    setTurns(sortTurns());
+    const newTurns = sortTurns();
+    setTurns(newTurns);
   }, [sortTurns]);
 
   // Input panel stream listener
