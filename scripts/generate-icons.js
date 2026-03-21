@@ -58,9 +58,24 @@ async function generateIco() {
     execSync(`${convertCmd} ${pngFiles} ${LOGO_ICO}`, { stdio: 'ignore' });
     console.log('  ✓ 使用 ImageMagick 生成 logo.ico');
   } catch (error) {
+<<<<<<< HEAD
     // 如果没有 ImageMagick，使用最大的尺寸作为 ICO
     console.log('  ⚠️  未安装 ImageMagick，使用 256x256 PNG 作为 ICO');
     fs.copyFileSync(path.join(tempDir, 'icon-256.png'), LOGO_ICO);
+=======
+    // 如果没有 ImageMagick，尝试使用 python+pillow 生成多尺寸 ICO
+    console.log('  ⚠️  未安装 ImageMagick，尝试使用 Python(pillow) 生成多尺寸 ICO');
+    try {
+      const pyBin = 'python';
+      const pyScript = path.join(__dirname, 'generate-windows-ico.py');
+      execSync(`"${pyBin}" "${pyScript}"`, { stdio: 'ignore' });
+      console.log('  ✓ 使用 Python(pillow) 生成 logo.ico');
+    } catch (pythonError) {
+      // 最后兜底：只用最大的尺寸作为 ICO
+      console.log('  ⚠️  Python(pillow) 生成失败，退化为 256x256 PNG 作为 ICO');
+      fs.copyFileSync(path.join(tempDir, 'icon-256.png'), LOGO_ICO);
+    }
+>>>>>>> 64e3da7 (fix: update windows icon)
   }
   
   // 清理临时文件
