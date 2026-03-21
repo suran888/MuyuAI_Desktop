@@ -1,0 +1,101 @@
+const { systemPreferences, shell, desktopCapturer } = require('electron');
+const permissionRepository = require('../repositories/permission');
+
+class PermissionService {
+  _getAuthService() {
+    return require('./authService');
+  }
+
+  async checkSystemPermissions() {
+    const permissions = {
+      microphone: 'unknown',
+      screen: 'unknown',
+      needsSetup: true
+    };
+
+    try {
+      if (process.platform === 'darwin') {
+        permissions.microphone = systemPreferences.getMediaAccessStatus('microphone');
+        permissions.screen = systemPreferences.getMediaAccessStatus('screen');
+        
+        // 只需要麦克风和屏幕权限
+        permissions.needsSetup = permissions.microphone !== 'granted' || permissions.screen !== 'granted';
+      } else {
+        permissions.microphone = 'granted';
+        permissions.screen = 'granted';
+        permissions.needsSetup = false;
+      }
+
+      console.log('[Permissions] System permissions status:', permissions);
+      return permissions;
+    } catch (error) {
+      console.error('[Permissions] Error checking permissions:', error);
+      return {
+        microphone: 'unknown',
+        screen: 'unknown',
+        needsSetup: true,
+        error: error.message
+      };
+    }
+  }
+
+  async requestMicrophonePermission() {
+    if (process.platform !== 'darwin') {
+      return { success: true };
+    }
+
+    try {
+      const status = systemPreferences.getMediaAccessStatus('microphone');
+      console.log('[Permissions] Microphone status:', status);
+      if (status === 'granted') {
+        return { success: true, status: 'granted' };
+      }
+
+      const granted = await systemPreferences.askForMediaAccess('microphone');
+      return {
+        success: granted,
+        status: granted ? 'granted' : 'denied'
+      };
+    } catch (error) {
+      console.error('[Permissions] Error requesting microphone permission:', error);
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  async openSystemPreferences(section) {
+    if (process.platform !== 'darwin') {
+      return { success: false, error: 'Not supported on this platform' };
+    }
+
+    try {
+      if (section === 'screen-recording') {
+        try {
+          console.log('[Permissions] Triggering screen capture request to register app...');
+          await desktopCapturer.getSources({
+            types: ['screen'],
+            thumbnailSize: { width: 1, height: 1 }
+          });
+          console.log('[Permissions] App registered for screen recording');
+        } catch (captureError) {
+          console.log('[Permissions] Screen capture request triggered (expected to fail):', captureError.message);
+        }
+        
+        // await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture');
+      } else if (section === 'microphone') {
+        console.log('[Permissions] Opening system preferences for microphone...');
+        // 打开系统设置的麦克风权限页面
+        await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
+      }
+      return { success: true };
+    } catch (error) {
+      console.error('[Permissions] Error opening system preferences:', error);
+      return { success: false, error: error.message };
+    }
+  }
+}
+
+const permissionService = new PermissionService();
+module.exports = permissionService; 

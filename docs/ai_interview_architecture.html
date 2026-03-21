@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI面试提词产品 - 完整业务流程架构</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        #root {
+            width: 100vw;
+            min-height: 100vh;
+        }
+
+        .architecture-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px;
+            padding-bottom: 60px;
+        }
+
+        .architecture-title {
+            color: white;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .architecture-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .flow-container {
+            max-width: 1400px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .phase-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .phase-title {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .phase-number {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .step-node {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .step-node::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .step-node:hover::before {
+            left: 100%;
+        }
+
+        .step-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .step-icon {
+            font-size: 24px;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .step-description {
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .step-details {
+            font-size: 12px;
+            opacity: 0.7;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .data-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 15px;
+        }
+
+        .flow-arrow {
+            color: #4facfe;
+            font-size: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        .flow-data {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .system-interaction {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .system-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .web-system {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(0, 242, 254, 0.2) 100%);
+        }
+
+        .desktop-system {
+            border-color: #43e97b;
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.2) 0%, rgba(56, 249, 215, 0.2) 100%);
+        }
+
+        .server-system {
+            border-color: #a8edea;
+            background: linear-gradient(135deg, rgba(168, 237, 234, 0.2) 0%, rgba(254, 214, 227, 0.2) 100%);
+        }
+
+        .system-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .system-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .interaction-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .arrow-icon {
+            font-size: 20px;
+            color: #4facfe;
+        }
+
+        .arrow-label {
+            font-size: 12px;
+            color: white;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            z-index: 1000;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .control-panel.collapsed {
+            width: 50px;
+            height: 50px;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .panel-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-label {
+            font-size: 12px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-bottom: 4px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            z-index: 1000;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-active { background: #4ade80; }
+        .status-processing { background: #f59e0b; }
+        .status-waiting { background: #06b6d4; }
+        .status-completed { background: #8b5cf6; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useCallback, useEffect } = React;
+
+        // 主应用组件
+        const App = () => {
+            const [collapsed, setCollapsed] = useState(false);
+            const [currentPhase, setCurrentPhase] = useState(0);
+            const [animationSpeed, setAnimationSpeed] = useState(3000);
+
+            // 完整业务流程数据
+            const businessFlow = [
+                {
+                    id: 'preparation',
+                    title: '准备阶段',
+                    subtitle: 'Web端用户准备和数据收集',
+                    steps: [
+                        {
+                            id: 'register',
+                            icon: '👤',
+                            title: '用户注册登录',
+                            description: '用户在Web端创建账户或登录现有账户',
+                            details: 'JWT认证，用户信息存储到数据库'
+                        },
+                        {
+                            id: 'purchase',
+                            icon: '💳',
+                            title: '购买时长套餐',
+                            description: '用户选择并购买AI提词服务时长（如10小时）',
+                            details: '支付处理，时长余额写入用户账户'
+                        },
+                        {
+                            id: 'upload',
+                            icon: '📄',
+                            title: '上传简历文件',
+                            description: '用户上传PDF/DOC格式的个人简历',
+                            details: '文件解析，提取文本内容和结构化信息'
+                        }
+                    ]
+                },
+                {
+                    id: 'processing',
+                    title: 'AI分析阶段',
+                    subtitle: '服务器端智能分析和数据生成',
+                    steps: [
+                        {
+                            id: 'ai_analysis',
+                            icon: '🤖',
+                            title: 'AI简历深度分析',
+                            description: '使用GPT/Claude等大模型分析简历内容',
+                            details: '提取技能、经验、项目，生成个人画像'
+                        },
+                        {
+                            id: 'qa_generation',
+                            icon: '💡',
+                            title: '生成面试问答库',
+                            description: '基于简历内容生成个性化面试问题和标准答案',
+                            details: '涵盖技术问题、行为问题、项目经验等'
+                        },
+                        {
+                            id: 'passcode_gen',
+                            icon: '🔑',
+                            title: '生成面试口令',
+                            description: '创建唯一的面试口令，关联用户数据和AI分析结果',
+                            details: 'UUID生成，加密存储，设置有效期'
+                        }
+                    ]
+                },
+                {
+                    id: 'activation',
+                    title: '激活阶段',
+                    subtitle: '桌面端下载和激活流程',
+                    steps: [
+                        {
+                            id: 'download',
+                            icon: '💻',
+                            title: '下载桌面端软件',
+                            description: '用户下载适配Mac/Windows的桌面提词工具',
+                            details: 'Electron应用，支持跨平台运行'
+                        },
+                        {
+                            id: 'passcode_verify',
+                            icon: '✅',
+                            title: '口令验证激活',
+                            description: '桌面端输入口令，验证身份并获取用户数据',
+                            details: '服务器验证口令，返回AI分析结果和时长余额'
+                        },
+                        {
+                            id: 'data_sync',
+                            icon: '🔄',
+                            title: '数据同步下载',
+                            description: '桌面端从服务器同步个性化的面试问答库',
+                            details: '加密传输，本地缓存，离线可用'
+                        }
+                    ]
+                },
+                {
+                    id: 'interview',
+                    title: '面试阶段',
+                    subtitle: '实时提词和智能辅助',
+                    steps: [
+                        {
+                            id: 'real_time_prompt',
+                            icon: '🎯',
+                            title: 'AI实时提词',
+                            description: '面试过程中根据问题类型智能提供答案提示',
+                            details: '语音识别，关键词匹配，智能推荐'
+                        },
+                        {
+                            id: 'time_tracking',
+                            icon: '⏱️',
+                            title: '使用时长统计',
+                            description: '精确统计提词功能的实际使用时间',
+                            details: '秒级计时，实时上报服务器'
+                        },
+                        {
+                            id: 'billing',
+                            icon: '💰',
+                            title: '实时计费扣费',
+                            description: '从用户购买的时长中实时扣除使用时间',
+                            details: '余额检查，自动停止，使用记录'
+                        }
+                    ]
+                }
+            ];
+
+            // 系统交互数据
+            const systemInteractions = [
+                {
+                    from: 'Web端',
+                    to: '服务器',
+                    data: '用户信息 + 简历文件',
+                    description: '用户数据上传'
+                },
+                {
+                    from: '服务器',
+                    to: 'AI服务',
+                    data: '简历内容',
+                    description: 'AI分析请求'
+                },
+                {
+                    from: 'AI服务',
+                    to: '服务器',
+                    data: '分析结果 + 问答库',
+                    description: 'AI分析完成'
+                },
+                {
+                    from: '服务器',
+                    to: 'Web端',
+                    data: '面试口令',
+                    description: '口令生成完成'
+                },
+                {
+                    from: '桌面端',
+                    to: '服务器',
+                    data: '口令验证请求',
+                    description: '激活验证'
+                },
+                {
+                    from: '服务器',
+                    to: '桌面端',
+                    data: 'AI数据 + 时长余额',
+                    description: '数据同步'
+                },
+                {
+                    from: '桌面端',
+                    to: '服务器',
+                    data: '使用时长统计',
+                    description: '实时计费'
+                }
+            ];
+
+            // 自动播放流程
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setCurrentPhase((prev) => (prev + 1) % businessFlow.length);
+                }, animationSpeed);
+
+                return () => clearInterval(interval);
+            }, [animationSpeed]);
+
+            // 键盘事件处理
+            useEffect(() => {
+                const handleKeyPress = (event) => {
+                    switch(event.key.toLowerCase()) {
+                        case 'n':
+                            setCurrentPhase((prev) => (prev + 1) % businessFlow.length);
+                            break;
+                        case 'p':
+                            setCurrentPhase((prev) => (prev - 1 + businessFlow.length) % businessFlow.length);
+                            break;
+                        case 'h':
+                            setCollapsed(!collapsed);
+                            break;
+                        case ' ':
+                            event.preventDefault();
+                            setAnimationSpeed(animationSpeed === 0 ? 3000 : 0);
+                            break;
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            }, [collapsed, animationSpeed]);
+
+            return React.createElement('div', { className: 'architecture-container' }, [
+                // 标题
+                React.createElement('h1', {
+                    key: 'title',
+                    className: 'architecture-title'
+                }, 'AI面试提词产品架构'),
+                
+                React.createElement('p', {
+                    key: 'subtitle',
+                    className: 'architecture-subtitle'
+                }, '完整业务流程 - Web端与桌面端协同工作的闭环系统'),
+
+                // 流程容器
+                React.createElement('div', { key: 'flow', className: 'flow-container' }, 
+                    businessFlow.map((phase, phaseIndex) => 
+                        React.createElement('div', {
+                            key: phase.id,
+                            className: 'phase-section',
+                            style: {
+                                opacity: currentPhase === phaseIndex ? 1 : 0.6,
+                                transform: currentPhase === phaseIndex ? 'scale(1.02)' : 'scale(1)',
+                                transition: 'all 0.5s ease'
+                            }
+                        }, [
+                            // 阶段标题
+                            React.createElement('div', { key: 'title', className: 'phase-title' }, [
+                                React.createElement('div', { key: 'number', className: 'phase-number' }, phaseIndex + 1),
+                                React.createElement('div', { key: 'text' }, `${phase.title} - ${phase.subtitle}`)
+                            ]),
+
+                            // 步骤节点
+                            React.createElement('div', { key: 'steps', className: 'flow-steps' },
+                                phase.steps.map(step => 
+                                    React.createElement('div', {
+                                        key: step.id,
+                                        className: 'step-node',
+                                        onClick: () => console.log(`点击了: ${step.title}`)
+                                    }, [
+                                        React.createElement('div', {
+                                            key: 'status',
+                                            className: `status-indicator ${currentPhase === phaseIndex ? 'status-active' : 'status-waiting'}`
+                                        }),
+                                        React.createElement('div', { key: 'header', className: 'step-header' }, [
+                                            React.createElement('span', { key: 'icon', className: 'step-icon' }, step.icon),
+                                            React.createElement('span', { key: 'title', className: 'step-title' }, step.title)
+                                        ]),
+                                        React.createElement('div', { key: 'desc', className: 'step-description' }, step.description),
+                                        React.createElement('div', { key: 'details', className: 'step-details' }, step.details)
+                                    ])
+                                )
+                            ),
+
+                            // 数据流向（除了最后一个阶段）
+                            phaseIndex < businessFlow.length - 1 && React.createElement('div', { key: 'flow', className: 'data-flow' }, [
+                                React.createElement('span', { key: 'arrow1', className: 'flow-arrow' }, '⬇️'),
+                                React.createElement('div', { key: 'data', className: 'flow-data' }, 
+                                    `数据流向: ${phase.title} → ${businessFlow[phaseIndex + 1].title}`
+                                ),
+                                React.createElement('span', { key: 'arrow2', className: 'flow-arrow' }, '⬇️')
+                            ])
+                        ])
+                    )
+                ),
+
+                // 系统交互图
+                React.createElement('div', { key: 'interaction', className: 'phase-section' }, [
+                    React.createElement('div', { key: 'title', className: 'phase-title' }, [
+                        React.createElement('div', { key: 'number', className: 'phase-number' }, '🔄'),
+                        React.createElement('div', { key: 'text' }, '系统间实时交互 - 数据流向图')
+                    ]),
+                    
+                    React.createElement('div', { key: 'systems', className: 'system-interaction' }, [
+                        React.createElement('div', { key: 'web', className: 'system-box web-system' }, [
+                            React.createElement('div', { key: 'title', className: 'system-title' }, '🌐 Web端'),
+                            React.createElement('div', { key: 'desc', className: 'system-desc' }, '用户注册、购买、简历上传')
+                        ]),
+                        React.createElement('div', { key: 'arrow1', className: 'interaction-arrow' }, [
+                            React.createElement('div', { key: 'icon', className: 'arrow-icon' }, '↔️'),
+                            React.createElement('div', { key: 'label', className: 'arrow-label' }, 'API调用')
+                        ]),
+                        React.createElement('div', { key: 'server', className: 'system-box server-system' }, [
+                            React.createElement('div', { key: 'title', className: 'system-title' }, '🖥️ 服务器'),
+                            React.createElement('div', { key: 'desc', className: 'system-desc' }, 'AI分析、口令管理、计费系统')
+                        ]),
+                        React.createElement('div', { key: 'arrow2', className: 'interaction-arrow' }, [
+                            React.createElement('div', { key: 'icon', className: 'arrow-icon' }, '↔️'),
+                            React.createElement('div', { key: 'label', className: 'arrow-label' }, '实时通信')
+                        ]),
+                        React.createElement('div', { key: 'desktop', className: 'system-box desktop-system' }, [
+                            React.createElement('div', { key: 'title', className: 'system-title' }, '💻 桌面端'),
+                            React.createElement('div', { key: 'desc', className: 'system-desc' }, '口令验证、AI提词、时长统计')
+                        ])
+                    ])
+                ]),
+
+                // 控制面板
+                React.createElement('div', {
+                    key: 'panel',
+                    className: `control-panel ${collapsed ? 'collapsed' : ''}`
+                }, [
+                    React.createElement('div', { key: 'header', className: 'panel-header' }, [
+                        React.createElement('div', { key: 'title', className: 'panel-title' }, 
+                            collapsed ? '⚙️' : '流程控制'),
+                        React.createElement('button', {
+                            key: 'collapse',
+                            className: 'collapse-btn',
+                            onClick: () => setCollapsed(!collapsed)
+                        }, collapsed ? '📖' : '📕')
+                    ]),
+                    
+                    !collapsed && React.createElement('div', { key: 'content' }, [
+                        React.createElement('div', { key: 'group1', className: 'control-group' }, [
+                            React.createElement('label', { key: 'label1', className: 'control-label' }, '阶段控制'),
+                            React.createElement('button', {
+                                key: 'next',
+                                className: 'control-btn',
+                                onClick: () => setCurrentPhase((prev) => (prev + 1) % businessFlow.length)
+                            }, '▶️ 下一阶段 (N)'),
+                            React.createElement('button', {
+                                key: 'prev',
+                                className: 'control-btn',
+                                onClick: () => setCurrentPhase((prev) => (prev - 1 + businessFlow.length) % businessFlow.length)
+                            }, '◀️ 上一阶段 (P)')
+                        ]),
+                        
+                        React.createElement('div', { key: 'group2', className: 'control-group' }, [
+                            React.createElement('label', { key: 'label2', className: 'control-label' }, '播放控制'),
+                            React.createElement('button', {
+                                key: 'play',
+                                className: 'control-btn',
+                                onClick: () => setAnimationSpeed(animationSpeed === 0 ? 3000 : 0)
+                            }, animationSpeed === 0 ? '▶️ 自动播放' : '⏸️ 暂停播放'),
+                            React.createElement('button', {
+                                key: 'hide',
+                                className: 'control-btn',
+                                onClick: () => setCollapsed(true)
+                            }, '👁️ 隐藏面板 (H)')
+                        ])
+                    ])
+                ]),
+                
+                // 图例
+                React.createElement('div', { key: 'legend', className: 'legend' }, [
+                    React.createElement('div', { key: 'legend-title', className: 'legend-title' }, '系统说明'),
+                    React.createElement('div', { key: 'item1', className: 'legend-item' }, [
+                        React.createElement('div', { key: 'color1', className: 'legend-color status-active' }),
+                        '当前激活阶段'
+                    ]),
+                    React.createElement('div', { key: 'item2', className: 'legend-item' }, [
+                        React.createElement('div', { key: 'color2', className: 'legend-color status-waiting' }),
+                        '等待执行阶段'
+                    ]),
+                    React.createElement('div', { key: 'item3', className: 'legend-item' }, [
+                        React.createElement('div', { key: 'color3', className: 'legend-color', style: { background: '#4facfe' } }),
+                        'Web端系统'
+                    ]),
+                    React.createElement('div', { key: 'item4', className: 'legend-item' }, [
+                        React.createElement('div', { key: 'color4', className: 'legend-color', style: { background: '#43e97b' } }),
+                        '桌面端系统'
+                    ]),
+                    React.createElement('div', { key: 'item5', className: 'legend-item' }, [
+                        React.createElement('div', { key: 'color5', className: 'legend-color', style: { background: '#a8edea' } }),
+                        '服务器系统'
+                    ])
+                ])
+            ]);
+        };
+
+        // 渲染应用
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>

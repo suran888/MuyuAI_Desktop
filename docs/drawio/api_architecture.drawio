@@ -1,0 +1,202 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="API架构图" id="api-architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 标题 -->
+        <mxCell id="title" value="API架构图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#2c3e50;" vertex="1" parent="1">
+          <mxGeometry x="450" y="30" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 客户端层 -->
+        <mxCell id="client-layer" value="客户端层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e3f2fd;strokeColor=#1976d2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="960" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="client-components" value="Web应用 (React)                    移动端应用 (React Native)                    桌面端应用 (Electron)" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="client-layer">
+          <mxGeometry y="26" width="960" height="54" as="geometry" />
+        </mxCell>
+        
+        <!-- API网关层 -->
+        <mxCell id="gateway-layer" value="API网关层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="220" width="960" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="gateway-components" value="负载均衡器 (Nginx)     |     API网关 (Kong/Zuul)     |     认证授权 (JWT)     |     限流熔断     |     日志监控" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="gateway-layer">
+          <mxGeometry y="26" width="960" height="74" as="geometry" />
+        </mxCell>
+        
+        <!-- 业务服务层 -->
+        <mxCell id="business-layer" value="业务服务层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="1">
+          <mxGeometry x="80" y="360" width="960" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- 用户服务 -->
+        <mxCell id="user-service" value="用户服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="business-layer">
+          <mxGeometry x="40" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="user-service-apis" value="• POST /auth/register&#xa;• POST /auth/login&#xa;• GET /users/profile&#xa;• PUT /users/profile&#xa;• POST /auth/logout" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="business-layer">
+          <mxGeometry x="20" y="110" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- 简历服务 -->
+        <mxCell id="resume-service" value="简历服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="business-layer">
+          <mxGeometry x="200" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="resume-service-apis" value="• POST /resumes&#xa;• GET /resumes&#xa;• PUT /resumes/:id&#xa;• DELETE /resumes/:id&#xa;• POST /resumes/upload" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="business-layer">
+          <mxGeometry x="180" y="110" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- 面试服务 -->
+        <mxCell id="interview-service" value="面试服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="business-layer">
+          <mxGeometry x="360" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="interview-service-apis" value="• POST /interviews&#xa;• GET /interviews&#xa;• PUT /interviews/:id&#xa;• POST /interviews/start&#xa;• POST /interviews/end" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="business-layer">
+          <mxGeometry x="340" y="110" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- AI服务 -->
+        <mxCell id="ai-service" value="AI服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="business-layer">
+          <mxGeometry x="520" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ai-service-apis" value="• POST /ai/questions&#xa;• POST /ai/evaluate&#xa;• POST /ai/prompts&#xa;• GET /ai/feedback&#xa;• POST /ai/analyze" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="business-layer">
+          <mxGeometry x="500" y="110" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- 支付服务 -->
+        <mxCell id="payment-service" value="支付服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="business-layer">
+          <mxGeometry x="680" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="payment-service-apis" value="• POST /payments&#xa;• GET /payments/:id&#xa;• POST /payments/webhook&#xa;• GET /packages&#xa;• POST /orders" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="business-layer">
+          <mxGeometry x="660" y="110" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- 通知服务 -->
+        <mxCell id="notification-service" value="通知服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#ad1457;" vertex="1" parent="business-layer">
+          <mxGeometry x="840" y="40" width="100" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notification-service-apis" value="• POST /notifications&#xa;• GET /notifications&#xa;• PUT /notifications/:id&#xa;• POST /notifications/send" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="business-layer">
+          <mxGeometry x="820" y="110" width="140" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据访问层 -->
+        <mxCell id="data-layer" value="数据访问层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e0f2f1;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="80" y="600" width="960" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据库 -->
+        <mxCell id="database" value="PostgreSQL&#xa;主数据库" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="data-layer">
+          <mxGeometry x="80" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- Redis缓存 -->
+        <mxCell id="redis" value="Redis&#xa;缓存/会话" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="data-layer">
+          <mxGeometry x="240" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 文件存储 -->
+        <mxCell id="file-storage" value="MinIO/S3&#xa;文件存储" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="data-layer">
+          <mxGeometry x="400" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 搜索引擎 -->
+        <mxCell id="elasticsearch" value="Elasticsearch&#xa;搜索引擎" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="data-layer">
+          <mxGeometry x="560" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 消息队列 -->
+        <mxCell id="message-queue" value="RabbitMQ&#xa;消息队列" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="data-layer">
+          <mxGeometry x="720" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 监控日志 -->
+        <mxCell id="monitoring" value="ELK Stack&#xa;监控日志" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#ad1457;" vertex="1" parent="data-layer">
+          <mxGeometry x="880" y="40" width="100" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 外部服务层 -->
+        <mxCell id="external-layer" value="外部服务层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f1f8e9;strokeColor=#33691e;" vertex="1" parent="1">
+          <mxGeometry x="80" y="760" width="960" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="external-services" value="OpenAI API     |     支付网关 (Stripe/支付宝)     |     短信服务     |     邮件服务     |     CDN服务     |     第三方登录" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="external-layer">
+          <mxGeometry y="26" width="960" height="74" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接线 -->
+        
+        <!-- 客户端到网关 -->
+        <mxCell id="client-to-gateway" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=3;" edge="1" parent="1" source="client-layer" target="gateway-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="client-gateway-label" value="HTTPS/WSS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#1976d2;" vertex="1" parent="1">
+          <mxGeometry x="520" y="190" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 网关到业务服务 -->
+        <mxCell id="gateway-to-business" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#7b1fa2;strokeWidth=3;" edge="1" parent="1" source="gateway-layer" target="business-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="gateway-business-label" value="HTTP/gRPC" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="520" y="330" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 业务服务到数据层 -->
+        <mxCell id="business-to-data" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#f57c00;strokeWidth=3;" edge="1" parent="1" source="business-layer" target="data-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="600" as="sourcePoint" />
+            <mxPoint x="450" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="business-data-label" value="SQL/NoSQL" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#f57c00;" vertex="1" parent="1">
+          <mxGeometry x="520" y="570" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 业务服务到外部服务 -->
+        <mxCell id="business-to-external" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2e7d32;strokeWidth=2;dashed=1;" edge="1" parent="1" source="business-layer" target="external-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="700" as="sourcePoint" />
+            <mxPoint x="450" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="business-external-label" value="REST API" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="520" y="730" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- API版本说明 -->
+        <mxCell id="api-version" value="API版本: v1&#xa;协议: REST + GraphQL&#xa;认证: JWT Bearer Token&#xa;限流: 1000 req/min" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ff8f00;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="100" width="160" height="80" as="geometry" />
+        </mxCell>
+        
+        <!-- 响应格式说明 -->
+        <mxCell id="response-format" value="响应格式:&#xa;{&#xa;  &quot;code&quot;: 200,&#xa;  &quot;message&quot;: &quot;success&quot;,&#xa;  &quot;data&quot;: {...},&#xa;  &quot;timestamp&quot;: &quot;2024-01-01T00:00:00Z&quot;&#xa;}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;align=left;fontFamily=Courier New;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="200" width="160" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- 错误处理说明 -->
+        <mxCell id="error-handling" value="错误码:&#xa;• 400: 请求参数错误&#xa;• 401: 未授权&#xa;• 403: 权限不足&#xa;• 404: 资源不存在&#xa;• 429: 请求过于频繁&#xa;• 500: 服务器内部错误" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="340" width="160" height="120" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

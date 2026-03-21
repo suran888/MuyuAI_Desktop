@@ -1,0 +1,173 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="数据流程图" id="data-flow">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 用户注册流程 -->
+        <mxCell id="user-register" value="用户注册" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 身份验证 -->
+        <mxCell id="auth-verify" value="身份验证" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="160" y="30" width="80" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- 用户档案创建 -->
+        <mxCell id="profile-create" value="创建用户档案" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 简历上传流程 -->
+        <mxCell id="resume-upload" value="简历上传" style="ellipse;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 文件解析 -->
+        <mxCell id="file-parse" value="文件解析" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="160" y="140" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 结构化存储 -->
+        <mxCell id="structured-store" value="结构化存储" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="280" y="140" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 套餐购买流程 -->
+        <mxCell id="plan-purchase" value="套餐购买" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 支付处理 -->
+        <mxCell id="payment-process" value="支付处理" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="160" y="230" width="80" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- 订阅激活 -->
+        <mxCell id="subscription-activate" value="订阅激活" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="280" y="240" width="100" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 面试配置流程 -->
+        <mxCell id="interview-config" value="面试配置" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f0f0f0;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 口令生成 -->
+        <mxCell id="token-generate" value="口令生成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="160" y="340" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 配置存储 -->
+        <mxCell id="config-store" value="配置存储" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="280" y="340" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 桌面端使用流程 -->
+        <mxCell id="desktop-login" value="桌面端登录" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="40" width="90" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 口令验证 -->
+        <mxCell id="token-verify" value="口令验证" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="570" y="30" width="80" height="70" as="geometry" />
+        </mxCell>
+        
+        <!-- 会话启动 -->
+        <mxCell id="session-start" value="会话启动" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="690" y="40" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- AI提词生成 -->
+        <mxCell id="ai-prompt" value="AI提词生成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="570" y="140" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 实时推送 -->
+        <mxCell id="realtime-push" value="实时推送" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="690" y="140" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 使用统计 -->
+        <mxCell id="usage-stats" value="使用统计" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;" vertex="1" parent="1">
+          <mxGeometry x="570" y="240" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 计费结算 -->
+        <mxCell id="billing-settle" value="计费结算" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="690" y="240" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据分析 -->
+        <mxCell id="data-analytics" value="数据分析" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f0f0f0;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="440" y="340" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 外部服务 -->
+        <mxCell id="llm-service" value="LLM服务" style="hexagon;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="800" y="140" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="payment-gateway" value="支付网关" style="hexagon;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" vertex="1" parent="1">
+          <mxGeometry x="400" y="240" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接线 -->
+        <mxCell id="edge1" edge="1" parent="1" source="user-register" target="auth-verify">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" edge="1" parent="1" source="auth-verify" target="profile-create">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" edge="1" parent="1" source="resume-upload" target="file-parse">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" edge="1" parent="1" source="file-parse" target="structured-store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" edge="1" parent="1" source="plan-purchase" target="payment-process">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" edge="1" parent="1" source="payment-process" target="subscription-activate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" edge="1" parent="1" source="payment-process" target="payment-gateway">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" edge="1" parent="1" source="interview-config" target="token-generate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" edge="1" parent="1" source="token-generate" target="config-store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" edge="1" parent="1" source="desktop-login" target="token-verify">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge11" edge="1" parent="1" source="token-verify" target="session-start">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge12" edge="1" parent="1" source="session-start" target="ai-prompt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge13" edge="1" parent="1" source="ai-prompt" target="realtime-push">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge14" edge="1" parent="1" source="ai-prompt" target="llm-service">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge15" edge="1" parent="1" source="realtime-push" target="usage-stats">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge16" edge="1" parent="1" source="usage-stats" target="billing-settle">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge17" edge="1" parent="1" source="usage-stats" target="data-analytics">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

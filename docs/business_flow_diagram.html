@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI面试提示产品 - 业务流程图</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .flow-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .flow-stages {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .stage {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .stage-header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .stage-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .stage-header.active {
+            background: linear-gradient(135deg, #4ecdc4, #44bd87);
+            animation: pulse 2s infinite;
+        }
+
+        .stage-header h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .stage-header .stage-number {
+            font-size: 2rem;
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        .stage-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .step {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 4px solid #ddd;
+        }
+
+        .step:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .step.active {
+            border-left-color: #4ecdc4;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.1), rgba(68, 189, 135, 0.1));
+            animation: glow 2s infinite alternate;
+        }
+
+        .step.completed {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, rgba(39, 174, 96, 0.1), rgba(46, 204, 113, 0.1));
+        }
+
+        .step-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .step-desc {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            line-height: 1.4;
+        }
+
+        .flow-arrows {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4ecdc4, transparent);
+            z-index: -1;
+        }
+
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid #4ecdc4;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .arrow:nth-child(1) {
+            left: 25%;
+        }
+
+        .arrow:nth-child(2) {
+            left: 50%;
+        }
+
+        .arrow:nth-child(3) {
+            left: 75%;
+        }
+
+        .data-flow {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .data-flow h3 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+        }
+
+        .data-nodes {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .data-node {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            min-width: 150px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .data-node:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .data-node-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .data-node-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .data-node-desc {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .control-panel h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .control-item:last-child {
+            border-bottom: none;
+        }
+
+        .floating-hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: fadeInOut 3s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes glow {
+            0% {
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            100% {
+                box-shadow: 0 4px 20px rgba(78, 205, 196, 0.3);
+            }
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes flowAnimation {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .flow-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #4ecdc4;
+            border-radius: 50%;
+            animation: flowAnimation 3s linear infinite;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const BusinessFlowDiagram = () => {
+            const [currentStage, setCurrentStage] = useState(0);
+            const [currentStep, setCurrentStep] = useState(0);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [controlPanelVisible, setControlPanelVisible] = useState(true);
+
+            const stages = [
+                {
+                    title: "用户注册",
+                    number: "01",
+                    color: "linear-gradient(135deg, #ff6b6b, #ee5a24)",
+                    steps: [
+                        {
+                            icon: "👤",
+                            title: "账号创建",
+                            desc: "邮箱注册或第三方登录（GitHub/LinkedIn）"
+                        },
+                        {
+                            icon: "📧",
+                            title: "邮箱验证",
+                            desc: "发送验证邮件，确认账号有效性"
+                        },
+                        {
+                            icon: "📝",
+                            title: "完善资料",
+                            desc: "填写个人信息、职业背景等基础资料"
+                        }
+                    ]
+                },
+                {
+                    title: "套餐购买",
+                    number: "02",
+                    color: "linear-gradient(135deg, #4ecdc4, #44bd87)",
+                    steps: [
+                        {
+                            icon: "💳",
+                            title: "选择套餐",
+                            desc: "查看不同套餐的时长和功能对比"
+                        },
+                        {
+                            icon: "💰",
+                            title: "支付处理",
+                            desc: "通过Stripe、支付宝等完成支付"
+                        },
+                        {
+                            icon: "✅",
+                            title: "激活服务",
+                            desc: "套餐生效，获得使用时长配额"
+                        }
+                    ]
+                },
+                {
+                    title: "简历准备",
+                    number: "03",
+                    color: "linear-gradient(135deg, #45b7d1, #3742fa)",
+                    steps: [
+                        {
+                            icon: "📄",
+                            title: "上传简历",
+                            desc: "支持PDF、Word等格式的简历文件"
+                        },
+                        {
+                            icon: "🤖",
+                            title: "AI解析",
+                            desc: "智能提取技能、经验、项目等关键信息"
+                        },
+                        {
+                            icon: "🎯",
+                            title: "场景配置",
+                            desc: "设置面试职位、难度、语言等参数"
+                        }
+                    ]
+                },
+                {
+                    title: "面试使用",
+                    number: "04",
+                    color: "linear-gradient(135deg, #96ceb4, #6c5ce7)",
+                    steps: [
+                        {
+                            icon: "🔑",
+                            title: "生成口令",
+                            desc: "Web端生成一次性面试口令"
+                        },
+                        {
+                            icon: "💻",
+                            title: "桌面登录",
+                            desc: "桌面端输入口令，启动提词服务"
+                        },
+                        {
+                            icon: "💬",
+                            title: "智能提词",
+                            desc: "实时显示面试问答建议和要点"
+                        }
+                    ]
+                }
+            ];
+
+            const dataNodes = [
+                {
+                    icon: "🌐",
+                    title: "Web端",
+                    desc: "用户管理、套餐购买"
+                },
+                {
+                    icon: "🖥️",
+                    title: "桌面端",
+                    desc: "提词界面、使用统计"
+                },
+                {
+                    icon: "☁️",
+                    title: "云服务",
+                    desc: "AI处理、数据同步"
+                },
+                {
+                    icon: "📊",
+                    title: "数据分析",
+                    desc: "使用统计、效果优化"
+                }
+            ];
+
+            const metrics = [
+                { value: "4", label: "主要阶段" },
+                { value: "12", label: "核心步骤" },
+                { value: "3", label: "平台支持" },
+                { value: "∞", label: "使用场景" }
+            ];
+
+            useEffect(() => {
+                let interval;
+                if (isPlaying) {
+                    interval = setInterval(() => {
+                        setCurrentStep(prev => {
+                            const nextStep = prev + 1;
+                            const totalSteps = stages.reduce((sum, stage) => sum + stage.steps.length, 0);
+
+                            if (nextStep >= totalSteps) {
+                                setIsPlaying(false);
+                                return 0;
+                            }
+
+                            // 计算当前阶段
+                            let stepCount = 0;
+                            for (let i = 0; i < stages.length; i++) {
+                                if (nextStep < stepCount + stages[i].steps.length) {
+                                    setCurrentStage(i);
+                                    break;
+                                }
+                                stepCount += stages[i].steps.length;
+                            }
+
+                            return nextStep;
+                        });
+                    }, 2000);
+                }
+                return () => clearInterval(interval);
+            }, [isPlaying, stages]);
+
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    switch (e.key.toLowerCase()) {
+                        case 's':
+                            setIsPlaying(!isPlaying);
+                            break;
+                        case 'r':
+                            setCurrentStage(0);
+                            setCurrentStep(0);
+                            setIsPlaying(false);
+                            break;
+                        case 'h':
+                            setControlPanelVisible(prev => !prev);
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            break;
+                    }
+                };
+
+                document.addEventListener('keydown', handleKeyPress);
+                return () => document.removeEventListener('keydown', handleKeyPress);
+            }, [isPlaying, controlPanelVisible]);
+
+            const getStepIndex = (stageIndex, stepIndex) => {
+                let index = 0;
+                for (let i = 0; i < stageIndex; i++) {
+                    index += stages[i].steps.length;
+                }
+                return index + stepIndex;
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <h1>🎯 AI面试提示产品业务流程</h1>
+                        <p>从用户注册到智能提词的完整业务流程可视化</p>
+                    </div>
+
+                    <div className="flow-container">
+                        <div className="flow-stages">
+                            <div className="flow-arrows">
+                                <div className="arrow"></div>
+                                <div className="arrow"></div>
+                                <div className="arrow"></div>
+                                {isPlaying && <div className="flow-particle"></div>}
+                            </div>
+
+                            {stages.map((stage, stageIndex) => (
+                                <div key={stageIndex} className="stage">
+                                    <div
+                                        className={`stage-header ${currentStage === stageIndex ? 'active' : ''}`}
+                                        style={{ background: stage.color }}
+                                        onClick={() => setCurrentStage(stageIndex)}
+                                    >
+                                        <div className="stage-number">{stage.number}</div>
+                                        <h3>{stage.title}</h3>
+                                    </div>
+
+                                    <div className="stage-steps">
+                                        {stage.steps.map((step, stepIndex) => {
+                                            const globalStepIndex = getStepIndex(stageIndex, stepIndex);
+                                            const isActive = currentStep === globalStepIndex;
+                                            const isCompleted = currentStep > globalStepIndex;
+
+                                            return (
+                                                <div
+                                                    key={stepIndex}
+                                                    className={`step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}
+                                                    onClick={() => setCurrentStep(globalStepIndex)}
+                                                >
+                                                    <div className="step-icon">{step.icon}</div>
+                                                    <div className="step-title">{step.title}</div>
+                                                    <div className="step-desc">{step.desc}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="data-flow">
+                            <h3>🔄 系统交互流程</h3>
+                            <div className="data-nodes">
+                                {dataNodes.map((node, index) => (
+                                    <div key={index} className="data-node">
+                                        <div className="data-node-icon">{node.icon}</div>
+                                        <div className="data-node-title">{node.title}</div>
+                                        <div className="data-node-desc">{node.desc}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="metrics">
+                            {metrics.map((metric, index) => (
+                                <div key={index} className="metric-card">
+                                    <div className="metric-value">{metric.value}</div>
+                                    <div className="metric-label">{metric.label}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {!controlPanelVisible && (
+                        <div className="floating-hint">
+                            按 H 显示控制面板
+                        </div>
+                    )}
+
+                    {controlPanelVisible && (
+                        <div className="control-panel">
+                            <h3>🎛️ 控制面板</h3>
+                            <div className="control-item">
+                                <span>播放状态: {isPlaying ? '▶️' : '⏸️'}</span>
+                            </div>
+                            <div className="control-item">
+                                <span>当前阶段: {currentStage + 1}/4</span>
+                            </div>
+                            <div className="control-item">
+                                <span>S - 开始/暂停</span>
+                            </div>
+                            <div className="control-item">
+                                <span>R - 重置流程</span>
+                            </div>
+                            <div className="control-item">
+                                <span>H - 隐藏面板</span>
+                            </div>
+                            <div className="control-item">
+                                <span>空格 - 回到顶部</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<BusinessFlowDiagram />);
+    </script>
+</body>
+
+</html>

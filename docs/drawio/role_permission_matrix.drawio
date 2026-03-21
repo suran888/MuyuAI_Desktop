@@ -1,0 +1,324 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="角色权限矩阵" id="role-permission-matrix">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 标题 -->
+        <mxCell id="title" value="角色权限矩阵" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#2c3e50;" vertex="1" parent="1">
+          <mxGeometry x="450" y="30" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Web端功能区域 -->
+        <mxCell id="web-section" value="Web端功能" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#01579b;fontSize=16;fontStyle=1;verticalAlign=top;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="980" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- 角色标题 -->
+        <mxCell id="candidate-title" value="应聘者" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#2e7d32;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="130" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-title" value="教练/企业" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffecb3;strokeColor=#f57f17;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="180" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-title" value="管理员" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="230" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Web功能权限 -->
+        <mxCell id="web-func1" value="注册登录" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="250" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-func2" value="简历管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="340" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-func3" value="面试配置" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="430" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-func4" value="历史记录" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-func5" value="套餐管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-func6" value="支付管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-func7" value="用户管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="790" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="web-func8" value="系统监控" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="880" y="130" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- 权限标记 - 应聘者 -->
+        <mxCell id="candidate-perm1" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="candidate-perm2" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="candidate-perm3" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="candidate-perm4" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="candidate-perm5" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="candidate-perm6" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="candidate-perm7" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="candidate-perm8" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="180" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 权限标记 - 教练/企业 -->
+        <mxCell id="coach-perm1" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-perm2" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-perm3" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-perm4" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-perm5" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-perm6" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-perm7" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="coach-perm8" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="230" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 权限标记 - 管理员 -->
+        <mxCell id="admin-perm1" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-perm2" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-perm3" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-perm4" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-perm5" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-perm6" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-perm7" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="admin-perm8" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="280" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Desktop端功能区域 -->
+        <mxCell id="desktop-section" value="Desktop端功能" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=16;fontStyle=1;verticalAlign=top;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="350" width="980" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Desktop功能权限 -->
+        <mxCell id="desktop-func1" value="AI面试" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="250" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-func2" value="实时提词" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="340" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-func3" value="语音识别" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="430" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-func4" value="防作弊" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-func5" value="本地存储" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-func6" value="系统集成" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="700" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-func7" value="远程监控" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="790" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-func8" value="数据分析" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#9e9e9e;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="880" y="380" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Desktop权限标记 - 应聘者 -->
+        <mxCell id="desktop-candidate-perm1" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-candidate-perm2" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-candidate-perm3" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-candidate-perm4" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-candidate-perm5" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-candidate-perm6" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-candidate-perm7" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-candidate-perm8" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="430" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Desktop权限标记 - 教练/企业 -->
+        <mxCell id="desktop-coach-perm1" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-coach-perm2" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-coach-perm3" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-coach-perm4" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-coach-perm5" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-coach-perm6" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-coach-perm7" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-coach-perm8" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="480" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Desktop权限标记 - 管理员 -->
+        <mxCell id="desktop-admin-perm1" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-admin-perm2" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-admin-perm3" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="450" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-admin-perm4" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-admin-perm5" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="630" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-admin-perm6" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-admin-perm7" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="810" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="desktop-admin-perm8" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="530" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 图例 -->
+        <mxCell id="legend-title" value="图例" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#2c3e50;" vertex="1" parent="1">
+          <mxGeometry x="80" y="600" width="60" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-allow" value="✓" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4caf50;strokeColor=#2e7d32;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="605" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-allow-text" value="允许访问" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="190" y="600" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-deny" value="✗" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f44336;strokeColor=#c62828;fontColor=white;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="290" y="605" width="20" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-deny-text" value="禁止访问" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="600" width="80" height="30" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

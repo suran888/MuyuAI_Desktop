@@ -1,0 +1,639 @@
+const { EventEmitter } = require('events');
+const ollamaService = require('./ollamaService');
+const whisperService = require('./whisperService');
+
+
+//Central manager for managing Ollama and Whisper services 
+class LocalAIManager extends EventEmitter {
+    constructor() {
+        super();
+        
+        // service map
+        this.services = {
+            ollama: ollamaService,
+            whisper: whisperService
+        };
+        
+        // unified state management
+        this.state = {
+            ollama: {
+                installed: false,
+                running: false,
+                models: []
+            },
+            whisper: {
+                installed: false,
+                initialized: false,
+                models: []
+            }
+        };
+        
+        // setup event listeners
+        this.setupEventListeners();
+    }
+    
+    
+    // subscribe to events from each service and re-emit as unified events
+    setupEventListeners() {
+        // ollama events
+        ollamaService.on('install-progress', (data) => {
+            this.emit('install-progress', 'ollama', data);
+        });
+        
+        ollamaService.on('installation-complete', () => {
+            this.emit('installation-complete', 'ollama');
+            this.updateServiceState('ollama');
+        });
+        
+        ollamaService.on('error', (error) => {
+            this.emit('error', { service: 'ollama', ...error });
+        });
+        
+        ollamaService.on('model-pull-complete', (data) => {
+            this.emit('model-ready', { service: 'ollama', ...data });
+            this.updateServiceState('ollama');
+        });
+        
+        ollamaService.on('state-changed', (state) => {
+            this.emit('state-changed', 'ollama', state);
+        });
+        
+// Whisper events
+        whisperService.on('install-progress', (data) => {
+            this.emit('install-progress', 'whisper', data);
+        });
+        
+        whisperService.on('installation-complete', () => {
+            this.emit('installation-complete', 'whisper');
+            this.updateServiceState('whisper');
+        });
+        
+        whisperService.on('error', (error) => {
+            this.emit('error', { service: 'whisper', ...error });
+        });
+        
+        whisperService.on('model-download-complete', (data) => {
+            this.emit('model-ready', { service: 'whisper', ...data });
+            this.updateServiceState('whisper');
+        });
+    }
+    
+    /**
+* Service installation
+     */
+    async installService(serviceName, options = {}) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        try {
+            if (serviceName === 'ollama') {
+                return await service.handleInstall();
+            } else if (serviceName === 'whisper') {
+// Whisper installs automatically
+                await service.initialize();
+                return { success: true };
+            }
+        } catch (error) {
+            this.emit('error', {
+                service: serviceName,
+                errorType: 'installation-failed',
+                error: error.message
+            });
+            throw error;
+        }
+    }
+    
+    /**
+* Get service status
+     */
+    async getServiceStatus(serviceName) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        if (serviceName === 'ollama') {
+            return await service.getStatus();
+        } else if (serviceName === 'whisper') {
+            const installed = await service.isInstalled();
+            const running = await service.isServiceRunning();
+            const models = await service.getInstalledModels();
+            return {
+                success: true,
+                installed,
+                running,
+                models
+            };
+        }
+    }
+    
+    /**
+* Start service
+     */
+    async startService(serviceName) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        const result = await service.startService();
+        await this.updateServiceState(serviceName);
+        return { success: result };
+    }
+    
+    /**
+* Stop service
+     */
+    async stopService(serviceName) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        let result;
+        if (serviceName === 'ollama') {
+            result = await service.shutdown(false);
+        } else if (serviceName === 'whisper') {
+            result = await service.stopService();
+        }
+        
+// Update state after service stop
+        await this.updateServiceState(serviceName);
+        
+        return result;
+    }
+    
+    /**
+* Install/download model
+     */
+    async installModel(serviceName, modelId, options = {}) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        if (serviceName === 'ollama') {
+            return await service.pullModel(modelId);
+        } else if (serviceName === 'whisper') {
+            return await service.downloadModel(modelId);
+        }
+    }
+    
+    /**
+* Get installed model list
+     */
+    async getInstalledModels(serviceName) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        if (serviceName === 'ollama') {
+            return await service.getAllModelsWithStatus();
+        } else if (serviceName === 'whisper') {
+            return await service.getInstalledModels();
+        }
+    }
+    
+    /**
+* Model warm-up (Ollama only)
+     */
+    async warmUpModel(modelName, forceRefresh = false) {
+        return await ollamaService.warmUpModel(modelName, forceRefresh);
+    }
+    
+    /**
+* Auto warm-up (Ollama only)
+     */
+    async autoWarmUp() {
+        return await ollamaService.autoWarmUpSelectedModel();
+    }
+    
+    /**
+* Run diagnostics
+     */
+    async runDiagnostics(serviceName) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        const diagnostics = {
+            service: serviceName,
+            timestamp: new Date().toISOString(),
+            checks: {}
+        };
+        
+        try {
+// 1. Check installation status
+            diagnostics.checks.installation = {
+                check: 'Installation',
+                status: await service.isInstalled() ? 'pass' : 'fail',
+                details: {}
+            };
+            
+// 2. Service running state
+            diagnostics.checks.running = {
+                check: 'Service Running',
+                status: await service.isServiceRunning() ? 'pass' : 'fail',
+                details: {}
+            };
+            
+// 3. Port connection test and detailed health check (Ollama)
+            if (serviceName === 'ollama') {
+                try {
+                    // Use comprehensive health check
+                    const health = await service.healthCheck();
+                    diagnostics.checks.health = {
+                        check: 'Service Health',
+                        status: health.healthy ? 'pass' : 'fail',
+                        details: health
+                    };
+                    
+                    // Legacy port check for compatibility
+                    diagnostics.checks.port = {
+                        check: 'Port Connectivity',
+                        status: health.checks.apiResponsive ? 'pass' : 'fail',
+                        details: { connected: health.checks.apiResponsive }
+                    };
+                } catch (error) {
+                    diagnostics.checks.health = {
+                        check: 'Service Health',
+                        status: 'fail',
+                        details: { error: error.message }
+                    };
+                    diagnostics.checks.port = {
+                        check: 'Port Connectivity',
+                        status: 'fail',
+                        details: { error: error.message }
+                    };
+                }
+                
+// 4. Model list
+                if (diagnostics.checks.running.status === 'pass') {
+                    try {
+                        const models = await service.getInstalledModels();
+                        diagnostics.checks.models = {
+                            check: 'Installed Models',
+                            status: 'pass',
+                            details: { count: models.length, models: models.map(m => m.name) }
+                        };
+                        
+// 5. Warm-up state
+                        const warmupStatus = await service.getWarmUpStatus();
+                        diagnostics.checks.warmup = {
+                            check: 'Model Warm-up',
+                            status: 'pass',
+                            details: warmupStatus
+                        };
+                    } catch (error) {
+                        diagnostics.checks.models = {
+                            check: 'Installed Models',
+                            status: 'fail',
+                            details: { error: error.message }
+                        };
+                    }
+                }
+            }
+            
+// 4. Whisper-specific diagnostics
+            if (serviceName === 'whisper') {
+// Verify binary
+                diagnostics.checks.binary = {
+                    check: 'Whisper Binary',
+                    status: service.whisperPath ? 'pass' : 'fail',
+                    details: { path: service.whisperPath }
+                };
+                
+// Model directory
+                diagnostics.checks.modelDir = {
+                    check: 'Model Directory',
+                    status: service.modelsDir ? 'pass' : 'fail',
+                    details: { path: service.modelsDir }
+                };
+            }
+            
+// Aggregate diagnostic result
+            const allChecks = Object.values(diagnostics.checks);
+            diagnostics.summary = {
+                total: allChecks.length,
+                passed: allChecks.filter(c => c.status === 'pass').length,
+                failed: allChecks.filter(c => c.status === 'fail').length,
+                overallStatus: allChecks.every(c => c.status === 'pass') ? 'healthy' : 'unhealthy'
+            };
+            
+        } catch (error) {
+            diagnostics.error = error.message;
+            diagnostics.summary = {
+                overallStatus: 'error'
+            };
+        }
+        
+        return diagnostics;
+    }
+    
+    /**
+* Service recovery
+     */
+    async repairService(serviceName) {
+        const service = this.services[serviceName];
+        if (!service) {
+            throw new Error(`Unknown service: ${serviceName}`);
+        }
+        
+        console.log(`[LocalAIManager] Starting repair for ${serviceName}...`);
+        const repairLog = [];
+        
+        try {
+// 1. Run diagnostics
+            repairLog.push('Running diagnostics...');
+            const diagnostics = await this.runDiagnostics(serviceName);
+            
+            if (diagnostics.summary.overallStatus === 'healthy') {
+                repairLog.push('Service is already healthy, no repair needed');
+                return {
+                    success: true,
+                    repairLog,
+                    diagnostics
+                };
+            }
+            
+// 2. Fix installation issues
+            if (diagnostics.checks.installation?.status === 'fail') {
+                repairLog.push('Installation missing, attempting to install...');
+                try {
+                    await this.installService(serviceName);
+                    repairLog.push('Installation completed');
+                } catch (error) {
+                    repairLog.push(`Installation failed: ${error.message}`);
+                    throw error;
+                }
+            }
+            
+// 3. Restart service
+            if (diagnostics.checks.running?.status === 'fail') {
+                repairLog.push('Service not running, attempting to start...');
+                
+// Attempt shutdown
+                try {
+                    await this.stopService(serviceName);
+                    repairLog.push('Stopped existing service');
+                } catch (error) {
+                    repairLog.push('Service was not running');
+                }
+                
+// Wait briefly
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+// Start
+                try {
+                    await this.startService(serviceName);
+                    repairLog.push('Service started successfully');
+                } catch (error) {
+                    repairLog.push(`Failed to start service: ${error.message}`);
+                    throw error;
+                }
+            }
+            
+// 4. Resolve port issues (Ollama)
+            if (serviceName === 'ollama' && diagnostics.checks.port?.status === 'fail') {
+                repairLog.push('Port connectivity issue detected');
+                
+// Force kill process
+                if (process.platform === 'darwin') {
+                    try {
+                        const { exec } = require('child_process');
+                        const { promisify } = require('util');
+                        const execAsync = promisify(exec);
+                        await execAsync('pkill -f ollama');
+                        repairLog.push('Killed stale Ollama processes');
+                    } catch (error) {
+                        repairLog.push('No stale processes found');
+                    }
+                }
+                else if (process.platform === 'win32') {
+                    try {
+                        const { exec } = require('child_process');
+                        const { promisify } = require('util');
+                        const execAsync = promisify(exec);
+                        await execAsync('taskkill /F /IM ollama.exe');
+                        repairLog.push('Killed stale Ollama processes');
+                    } catch (error) {
+                        repairLog.push('No stale processes found');
+                    }
+                }
+                else if (process.platform === 'linux') {
+                    try {
+                        const { exec } = require('child_process');
+                        const { promisify } = require('util');
+                        const execAsync = promisify(exec);
+                        await execAsync('pkill -f ollama');
+                        repairLog.push('Killed stale Ollama processes');
+                    } catch (error) {
+                        repairLog.push('No stale processes found');
+                    }
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+// Restart
+                await this.startService(serviceName);
+                repairLog.push('Restarted service after port cleanup');
+            }
+            
+// 5. Whisper-specific recovery
+            if (serviceName === 'whisper') {
+// Clean up sessions
+                if (diagnostics.checks.running?.status === 'pass') {
+                    repairLog.push('Cleaning up Whisper sessions...');
+                    await service.cleanup();
+                    repairLog.push('Sessions cleaned up');
+                }
+                
+// Initialize
+                if (!service.installState.isInitialized) {
+                    repairLog.push('Re-initializing Whisper...');
+                    await service.initialize();
+                    repairLog.push('Whisper re-initialized');
+                }
+            }
+            
+// 6. Final state check
+            repairLog.push('Verifying repair...');
+            const finalDiagnostics = await this.runDiagnostics(serviceName);
+            
+            const success = finalDiagnostics.summary.overallStatus === 'healthy';
+            repairLog.push(success ? 'Repair successful!' : 'Repair failed - manual intervention may be required');
+            
+// Update state on success
+            if (success) {
+                await this.updateServiceState(serviceName);
+            }
+            
+            return {
+                success,
+                repairLog,
+                diagnostics: finalDiagnostics
+            };
+            
+        } catch (error) {
+            repairLog.push(`Repair error: ${error.message}`);
+            return {
+                success: false,
+                repairLog,
+                error: error.message
+            };
+        }
+    }
+    
+    /**
+* State update
+     */
+    async updateServiceState(serviceName) {
+        try {
+            const status = await this.getServiceStatus(serviceName);
+            this.state[serviceName] = status;
+            
+// Emit state change event
+            this.emit('state-changed', serviceName, status);
+        } catch (error) {
+            console.error(`[LocalAIManager] Failed to update ${serviceName} state:`, error);
+        }
+    }
+    
+    /**
+* Get overall state
+     */
+    async getAllServiceStates() {
+        const states = {};
+        
+        for (const serviceName of Object.keys(this.services)) {
+            try {
+                states[serviceName] = await this.getServiceStatus(serviceName);
+            } catch (error) {
+                states[serviceName] = {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+        
+        return states;
+    }
+    
+    /**
+* Start periodic state sync
+     */
+    startPeriodicSync(interval = 30000) {
+        if (this.syncInterval) {
+            return;
+        }
+        
+        this.syncInterval = setInterval(async () => {
+            for (const serviceName of Object.keys(this.services)) {
+                await this.updateServiceState(serviceName);
+            }
+        }, interval);
+        
+// Start periodic sync for each service
+        ollamaService.startPeriodicSync();
+    }
+    
+    /**
+* Stop periodic state sync
+     */
+    stopPeriodicSync() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+            this.syncInterval = null;
+        }
+        
+// Stop periodic sync for each service
+        ollamaService.stopPeriodicSync();
+    }
+    
+    /**
+* Shutdown all
+     */
+    async shutdown() {
+        this.stopPeriodicSync();
+        
+        const results = {};
+        for (const [serviceName, service] of Object.entries(this.services)) {
+            try {
+                if (serviceName === 'ollama') {
+                    results[serviceName] = await service.shutdown(false);
+                } else if (serviceName === 'whisper') {
+                    await service.cleanup();
+                    results[serviceName] = true;
+                }
+            } catch (error) {
+                results[serviceName] = false;
+                console.error(`[LocalAIManager] Failed to shutdown ${serviceName}:`, error);
+            }
+        }
+        
+        return results;
+    }
+    
+    /**
+* Error handling
+     */
+    async handleError(serviceName, errorType, details = {}) {
+        console.error(`[LocalAIManager] Error in ${serviceName}: ${errorType}`, details);
+        
+// Per-service error handling
+        switch(errorType) {
+            case 'installation-failed':
+// Emit event on installation failure
+                this.emit('error-occurred', {
+                    service: serviceName,
+                    errorType,
+                    error: details.error || 'Installation failed',
+                    canRetry: true
+                });
+                break;
+                
+            case 'model-pull-failed':
+            case 'model-download-failed':
+// Model download failed
+                this.emit('error-occurred', {
+                    service: serviceName,
+                    errorType,
+                    model: details.model,
+                    error: details.error || 'Model download failed',
+                    canRetry: true
+                });
+                break;
+                
+            case 'service-not-responding':
+// Service unresponsive
+                console.log(`[LocalAIManager] Attempting to repair ${serviceName}...`);
+                const repairResult = await this.repairService(serviceName);
+                
+                this.emit('error-occurred', {
+                    service: serviceName,
+                    errorType,
+                    error: details.error || 'Service not responding',
+                    repairAttempted: true,
+                    repairSuccessful: repairResult.success
+                });
+                break;
+                
+            default:
+// Other errors
+                this.emit('error-occurred', {
+                    service: serviceName,
+                    errorType,
+                    error: details.error || `Unknown error: ${errorType}`,
+                    canRetry: false
+                });
+        }
+    }
+}
+
+// Singleton
+const localAIManager = new LocalAIManager();
+module.exports = localAIManager;

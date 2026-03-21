@@ -1,0 +1,12 @@
+/*
+  This file disables all animations, transitions, backgrounds, and borders
+  when the `body.has-glass` class is applied, ensuring a clean transparent Glass effect.
+*/
+body.has-glass * {
+    animation: none !important;
+    transition: none !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}

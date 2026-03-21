@@ -1,0 +1,277 @@
+name: Build & Release
+
+on:
+    push:
+        tags:
+            - 'v*' # 任何 v 开头的 tag 都会触发，例如 v1.0.0
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    build:
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - os: macos-15
+                      buildArgs: '--mac --x64'
+                      artifactName: mac-intel
+                      artifactPath: |
+                          dist/*.dmg
+                          dist/*.zip
+                    - os: macos-14
+                      buildArgs: '--mac --arm64'
+                      artifactName: mac-apple-silicon
+                      artifactPath: |
+                          dist/*.dmg
+                          dist/*.zip
+                    - os: windows-latest
+                      buildArgs: '--win nsis'
+                      artifactName: windows-exe
+                      artifactPath: 'dist/*.exe'
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - name: 🚚 Checkout code
+              uses: actions/checkout@v4
+
+            - name: ⚙️ Setup Node.js environment
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20.x'
+                  cache: 'npm'
+
+            - name: 📦 Install root dependencies
+              run: |
+                  npm config set registry https://registry.npmmirror.com
+                  npm install --prefer-offline --no-audit
+              continue-on-error: false
+
+            - name: 🔐 Import Apple signing certificate
+              if: runner.os == 'macOS'
+              env:
+                  APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+                  APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+              run: |
+                  # Create a temporary keychain
+                  KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+                  KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+
+                  # Create keychain
+                  security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+                  security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+                  security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+                  # Import certificate
+                  echo "$APPLE_CERTIFICATE" | base64 --decode > $RUNNER_TEMP/certificate.p12
+                  security import $RUNNER_TEMP/certificate.p12 -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+                  security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+                  # Allow codesign to access the certificate
+                  security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+                  echo "✅ Certificate imported successfully"
+
+            - name: 🧱 Build Electron target
+              env:
+                  MUYU_API_DOMAIN: https://resume-api.muyulab.com
+                  MUYU_WEB_URL: https://resume.muyulab.com
+                  STT_BACKEND_ENDPOINT: wss://resume-api.muyulab.com/api/v1/stt/stream
+                  # macOS signing and notarization (electron-builder built-in)
+                  APPLE_ID: ${{ secrets.APPLE_ID }}
+                  APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+                  APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+              run: |
+                  npm run build:renderer
+                  npx electron-builder ${{ matrix.buildArgs }} --publish never
+
+            - name: 📋 List dist directory
+              shell: bash
+              run: ls -lah dist/ || dir dist\
+
+            - name: 📤 Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ${{ matrix.artifactName }}
+                  path: ${{ matrix.artifactPath }}
+                  retention-days: 7
+
+    release:
+        needs: build
+        runs-on: ubuntu-latest
+        if: startsWith(github.ref, 'refs/tags/')
+        steps:
+            - name: 📥 Download all artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  path: artifacts
+
+            - name: 📋 List artifacts
+              run: |
+                  ls -lah artifacts/
+                  find artifacts -type f
+
+            - name: � Generate update metadata files
+              run: |
+                  VERSION="${{ github.ref_name }}"
+                  VERSION_NUM="${VERSION#v}"  # Remove v prefix
+
+                  # List all files for debugging
+                  echo "📂 All downloaded artifacts:"
+                  find artifacts -type f
+
+                  # Robustly find artifacts using full paths
+                  MAC_ARM64_DMG_PATH=$(find artifacts -name "*mac*arm64*.dmg" -type f | head -1)
+                  MAC_ARM64_ZIP_PATH=$(find artifacts -name "*mac*arm64*.zip" -type f | head -1)
+                  MAC_X64_DMG_PATH=$(find artifacts -name "*mac*x64*.dmg" -type f | head -1)
+                  MAC_X64_ZIP_PATH=$(find artifacts -name "*mac*x64*.zip" -type f | head -1)
+                  WIN_EXE_PATH=$(find artifacts -name "*win*x64*.exe" -type f | head -1)
+
+                  # Validate mandatory files exist
+                  if [ -z "$MAC_ARM64_DMG_PATH" ] || [ -z "$MAC_ARM64_ZIP_PATH" ] || [ -z "$WIN_EXE_PATH" ]; then
+                    echo "❌ Critical artifacts missing! Check build logs."
+                    exit 1
+                  fi
+
+                  # Extract filenames for YAML
+                  MAC_ARM64_DMG=$(basename "$MAC_ARM64_DMG_PATH")
+                  MAC_ARM64_ZIP=$(basename "$MAC_ARM64_ZIP_PATH")
+                  MAC_X64_DMG=$(basename "$MAC_X64_DMG_PATH")
+                  MAC_X64_ZIP=$(basename "$MAC_X64_ZIP_PATH")
+                  WIN_EXE=$(basename "$WIN_EXE_PATH")
+
+                  echo "Found artifacts:"
+                  echo "  MAC_ARM64_DMG: $MAC_ARM64_DMG ($MAC_ARM64_DMG_PATH)"
+                  echo "  MAC_ARM64_ZIP: $MAC_ARM64_ZIP ($MAC_ARM64_ZIP_PATH)"
+                  echo "  MAC_X64_DMG: $MAC_X64_DMG ($MAC_X64_DMG_PATH)"
+                  echo "  MAC_X64_ZIP: $MAC_X64_ZIP ($MAC_X64_ZIP_PATH)"
+                  echo "  WIN_EXE: $WIN_EXE ($WIN_EXE_PATH)"
+
+                  # Generate sha512 in base64 format (electron-updater requirement)
+                  get_sha512_base64() {
+                    sha512sum "$1" | cut -d ' ' -f 1 | xxd -r -p | base64 -w 0
+                  }
+
+                  # Generate latest-mac.yml (macOS)
+                  MAC_ARM64_DMG_SHA512=$(get_sha512_base64 "$MAC_ARM64_DMG_PATH")
+                  MAC_ARM64_DMG_SIZE=$(stat -c%s "$MAC_ARM64_DMG_PATH")
+                  MAC_ARM64_ZIP_SHA512=$(get_sha512_base64 "$MAC_ARM64_ZIP_PATH")
+                  MAC_ARM64_ZIP_SIZE=$(stat -c%s "$MAC_ARM64_ZIP_PATH")
+
+                  MAC_X64_DMG_SHA512=$(get_sha512_base64 "$MAC_X64_DMG_PATH")
+                  MAC_X64_DMG_SIZE=$(stat -c%s "$MAC_X64_DMG_PATH")
+                  MAC_X64_ZIP_SHA512=$(get_sha512_base64 "$MAC_X64_ZIP_PATH")
+                  MAC_X64_ZIP_SIZE=$(stat -c%s "$MAC_X64_ZIP_PATH")
+
+                  cat > artifacts/latest-mac.yml << EOF
+                  version: ${VERSION_NUM}
+                  files:
+                    - url: ${MAC_ARM64_ZIP}
+                      sha512: ${MAC_ARM64_ZIP_SHA512}
+                      size: ${MAC_ARM64_ZIP_SIZE}
+                    - url: ${MAC_ARM64_DMG}
+                      sha512: ${MAC_ARM64_DMG_SHA512}
+                      size: ${MAC_ARM64_DMG_SIZE}
+                    - url: ${MAC_X64_ZIP}
+                      sha512: ${MAC_X64_ZIP_SHA512}
+                      size: ${MAC_X64_ZIP_SIZE}
+                    - url: ${MAC_X64_DMG}
+                      sha512: ${MAC_X64_DMG_SHA512}
+                      size: ${MAC_X64_DMG_SIZE}
+                  path: ${MAC_ARM64_ZIP}
+                  sha512: ${MAC_ARM64_ZIP_SHA512}
+                  releaseDate: $(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+                  EOF
+
+                  # Generate latest.yml (Windows)
+                  WIN_SHA512=$(get_sha512_base64 "$WIN_EXE_PATH")
+                  WIN_SIZE=$(stat -c%s "$WIN_EXE_PATH")
+
+                  cat > artifacts/latest.yml << EOF
+                  version: ${VERSION_NUM}
+                  files:
+                    - url: ${WIN_EXE}
+                      sha512: ${WIN_SHA512}
+                      size: ${WIN_SIZE}
+                  path: ${WIN_EXE}
+                  sha512: ${WIN_SHA512}
+                  releaseDate: $(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
+                  EOF
+
+                  # Remove leading spaces from heredoc
+                  sed -i 's/^          //' artifacts/latest-mac.yml
+                  sed -i 's/^          //' artifacts/latest.yml
+
+                  echo "\n📄 Generated latest-mac.yml:"
+                  cat artifacts/latest-mac.yml
+                  echo "\n📄 Generated latest.yml:"
+                  cat artifacts/latest.yml
+
+            - name: ☁️ Upload to Volcengine TOS
+              env:
+                  AWS_ACCESS_KEY_ID: ${{ secrets.VOLCENGINE_ACCESS_KEY_ID }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.VOLCENGINE_SECRET_ACCESS_KEY }}
+              run: |
+                  set -x  # Enable debug output
+
+                  # Configure AWS CLI for Volcengine TOS
+                  aws configure set default.s3.signature_version s3v4
+                  aws configure set default.s3.addressing_style virtual
+                  aws configure set default.s3.max_concurrent_requests 2
+                  aws configure set default.s3.multipart_chunksize 64MB
+                  aws configure set default.retry_mode standard
+                  aws configure set default.max_attempts 10
+
+                  # Flatten artifacts directory structure for upload
+                  mkdir -p upload
+                  find artifacts -type f \( -name "*.dmg" -o -name "*.exe" -o -name "*.zip" -o -name "*.yml" \) -exec cp {} upload/ \;
+
+                  echo "📦 Files to upload:"
+                  ls -lah upload/
+
+                  # Upload using AWS CLI (Volcengine TOS is S3-compatible)
+                  # Use S3 endpoint for AWS CLI compatibility
+                  TOS_ENDPOINT="https://tos-s3-cn-beijing.volces.com"
+
+                  echo "📋 Testing bucket access..."
+                  aws s3 ls s3://desktop-release/ --endpoint-url "$TOS_ENDPOINT" --region cn-beijing || echo "⚠️ List failed"
+
+                  echo "📤 Starting upload to Volcengine TOS..."
+                  for file in upload/*; do
+                    filename=$(basename "$file")
+                    echo "Uploading $filename..."
+                    aws s3 cp "$file" "s3://desktop-release/$filename" \
+                      --endpoint-url "$TOS_ENDPOINT" \
+                      --region cn-beijing \
+                      || { echo "❌ Failed to upload $filename"; exit 1; }
+                  done
+
+                  echo "✅ Uploaded to Volcengine TOS successfully"
+                  echo "📍 URL: https://desktop-release.tos-cn-beijing.volces.com/"
+
+            - name: �📤 Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: ${{ github.ref_name }}
+                  name: 幕语 ${{ github.ref_name }}
+                  body: |
+                      🚀 幕语桌面版自动构建发布
+
+                      **构建信息:**
+                      - 版本: ${{ github.ref_name }}
+                      - Commit: ${{ github.sha }}
+                      - Build: #${{ github.run_number }}
+
+                      **下载说明:**
+                      - **macOS Intel**: `muyu-*-mac-x64.dmg`
+                      - **macOS Apple Silicon (M1/M2/M3)**: `muyu-*-mac-arm64.dmg`
+                      - **Windows**: `muyu-*-win-x64.exe`
+                  files: |
+                      artifacts/**/*
+                  draft: false
+                  prerelease: false
+                  fail_on_unmatched_files: false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

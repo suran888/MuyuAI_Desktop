@@ -1,0 +1,116 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="逻辑分层架构" id="logical-layers">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 客户端层 -->
+        <mxCell id="client-layer" value="Web/桌面端" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="400" y="40" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- API网关和CDN层 -->
+        <mxCell id="edge-layer" value="API Gateway &amp; CDN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="380" y="120" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 认证服务 -->
+        <mxCell id="auth-service-layer" value="Auth Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="200" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- BFF层 -->
+        <mxCell id="bff-layer" value="Web/桌面 BFF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="560" y="200" width="120" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 核心业务服务层 -->
+        <mxCell id="core-services" value="核心业务服务" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="300" y="280" width="320" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="billing-service" value="计费服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="core-services">
+          <mxGeometry x="20" y="40" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="prompt-service" value="提词生成服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="core-services">
+          <mxGeometry x="120" y="40" width="90" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="user-service" value="用户服务" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="core-services">
+          <mxGeometry x="230" y="40" width="70" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- LLM模型提供商 -->
+        <mxCell id="llm-providers" value="LLM 模型提供商" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="680" y="320" width="140" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据服务层 -->
+        <mxCell id="data-service-layer" value="数据服务层" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="380" y="440" width="160" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据存储层 -->
+        <mxCell id="storage-layer" value="数据存储" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="200" y="520" width="480" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="postgresql" value="PostgreSQL" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="storage-layer">
+          <mxGeometry x="40" y="30" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="redis" value="Redis" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="storage-layer">
+          <mxGeometry x="160" y="30" width="60" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="object-storage" value="对象存储" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="storage-layer">
+          <mxGeometry x="260" y="30" width="80" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- 支付网关 -->
+        <mxCell id="payment-gateway" value="支付网关" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="80" y="320" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 埋点/日志服务 -->
+        <mxCell id="telemetry-layer" value="埋点/日志" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f0f0;strokeColor=#666666;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="100" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据湖/分析仓 -->
+        <mxCell id="data-lake" value="数据湖/分析仓" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f0f0f0;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="200" width="100" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接线 -->
+        <mxCell id="edge1" edge="1" parent="1" source="client-layer" target="edge-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" edge="1" parent="1" source="edge-layer" target="auth-service-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" edge="1" parent="1" source="edge-layer" target="bff-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" edge="1" parent="1" source="bff-layer" target="core-services">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" edge="1" parent="1" source="billing-service" target="payment-gateway">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" edge="1" parent="1" source="prompt-service" target="llm-providers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" edge="1" parent="1" source="core-services" target="data-service-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" edge="1" parent="1" source="data-service-layer" target="storage-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" edge="1" parent="1" source="client-layer" target="telemetry-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" edge="1" parent="1" source="telemetry-layer" target="data-lake">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

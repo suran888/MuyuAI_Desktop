@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI面试提词产品 - 分层技术架构图</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .architecture-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 40px 20px 60px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .layers-container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .layer {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .layer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .layer-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .layer-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .layer-name {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .layer-level {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .layer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tech-group h4 {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tech-item {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tech-item:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .data-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .flow-arrow {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #4ecdc4, #45b7d1);
+            border-radius: 2px;
+            position: relative;
+            animation: flowAnimation 2s ease-in-out infinite;
+        }
+
+        .flow-arrow::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -6px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #45b7d1;
+            border-top: 7px solid transparent;
+            border-bottom: 7px solid transparent;
+        }
+
+        @keyframes flowAnimation {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            min-width: 200px;
+        }
+
+        .control-panel h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .control-item:last-child {
+            border-bottom: none;
+        }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            max-width: 350px;
+            max-height: 50vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .legend h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            width: 100%;
+            max-width: 1400px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4ecdc4;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .architecture-container {
+                padding: 20px 15px 40px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .layer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel, .legend {
+                position: relative;
+                max-width: 100%;
+                margin: 20px 0;
+            }
+        }
+
+        .breathing-animation {
+            animation: breathing 3s ease-in-out infinite;
+        }
+
+        .floating-hint {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            z-index: 1001;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+             0%, 100% { opacity: 0.7; }
+             50% { opacity: 1; }
+         }
+
+         @keyframes breathing {
+             0%, 100% { transform: scale(1); }
+             50% { transform: scale(1.02); }
+         }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const LayeredArchitecture = () => {
+            const [selectedLayer, setSelectedLayer] = useState(null);
+            const [animationEnabled, setAnimationEnabled] = useState(true);
+            const [controlPanelVisible, setControlPanelVisible] = useState(true);
+
+            const layers = [
+                {
+                    id: 'presentation',
+                    name: '表现层 (Presentation Layer)',
+                    level: 'L1',
+                    icon: '🎨',
+                    description: '用户界面和交互层',
+                    techGroups: [
+                        {
+                            name: 'Web前端',
+                            icon: '🌐',
+                            technologies: ['Next.js 14', 'React 18', 'TypeScript', 'Tailwind CSS', 'Lucide React']
+                        },
+                        {
+                            name: '桌面应用',
+                            icon: '💻',
+                            technologies: ['Electron', 'HTML/CSS/JS', 'IPC通信', 'Native APIs']
+                        },
+                        {
+                            name: 'UI组件',
+                            icon: '🧩',
+                            technologies: ['Headless UI', 'React Hot Toast', '响应式设计', '无障碍支持']
+                        }
+                    ]
+                },
+                {
+                    id: 'application',
+                    name: '应用层 (Application Layer)',
+                    level: 'L2',
+                    icon: '⚡',
+                    description: '业务逻辑和应用服务层',
+                    techGroups: [
+                        {
+                            name: '业务服务',
+                            icon: '🔧',
+                            technologies: ['用户认证', 'AI对话管理', '实时监听', '设置管理', '会话控制']
+                        },
+                        {
+                            name: '状态管理',
+                            icon: '📊',
+                            technologies: ['React State', 'Electron Store', 'Model State Service', '事件桥接']
+                        },
+                        {
+                            name: '通信协议',
+                            icon: '📡',
+                            technologies: ['Deep Link', 'Protocol Handler', 'IPC Messages', 'Event Emitter']
+                        }
+                    ]
+                },
+                {
+                    id: 'service',
+                    name: '服务层 (Service Layer)',
+                    level: 'L3',
+                    icon: '🚀',
+                    description: 'API服务和中间件层',
+                    techGroups: [
+                        {
+                            name: 'Web API',
+                            icon: '🌍',
+                            technologies: ['Express.js', 'RESTful API', 'CORS', 'JWT认证', 'Middleware']
+                        },
+                        {
+                            name: 'AI服务',
+                            icon: '🤖',
+                            technologies: ['Anthropic Claude', 'Google Gemini', 'Deepgram STT', 'Ollama本地模型']
+                        },
+                        {
+                            name: '实时服务',
+                            icon: '⚡',
+                            technologies: ['WebSocket', '音频处理', '屏幕捕获', '实时转录']
+                        }
+                    ]
+                },
+                {
+                    id: 'integration',
+                    name: '集成层 (Integration Layer)',
+                    level: 'L4',
+                    icon: '🔗',
+                    description: '外部服务集成和适配层',
+                    techGroups: [
+                        {
+                            name: '云服务',
+                            icon: '☁️',
+                            technologies: ['Firebase Auth', 'Firebase Admin', 'Google Cloud', 'GitHub API']
+                        },
+                        {
+                            name: '系统集成',
+                            icon: '⚙️',
+                            technologies: ['Electron Updater', 'Keytar', 'Node-fetch', 'Axios HTTP']
+                        },
+                        {
+                            name: '安全认证',
+                            icon: '🔐',
+                            technologies: ['OAuth 2.0', 'JWT Token', 'Keychain存储', 'HTTPS/TLS']
+                        }
+                    ]
+                },
+                {
+                    id: 'data',
+                    name: '数据层 (Data Layer)',
+                    level: 'L5',
+                    icon: '💾',
+                    description: '数据存储和管理层',
+                    techGroups: [
+                        {
+                            name: '本地存储',
+                            icon: '🗄️',
+                            technologies: ['SQLite', 'Better-sqlite3', 'Electron Store', '本地缓存']
+                        },
+                        {
+                            name: '云端存储',
+                            icon: '☁️',
+                            technologies: ['Firebase Firestore', 'Firebase Storage', '用户数据同步', '配置备份']
+                        },
+                        {
+                            name: '数据仓库',
+                            icon: '📚',
+                            technologies: ['Session Repository', 'Model Repository', 'Auth Repository', 'Settings Repository']
+                        }
+                    ]
+                },
+                {
+                    id: 'infrastructure',
+                    name: '基础设施层 (Infrastructure Layer)',
+                    level: 'L6',
+                    icon: '🏗️',
+                    description: '部署和运维基础设施',
+                    techGroups: [
+                        {
+                            name: '构建部署',
+                            icon: '📦',
+                            technologies: ['Electron Builder', 'GitHub Actions', 'Auto Updater', 'Code Signing']
+                        },
+                        {
+                            name: '开发工具',
+                            icon: '🛠️',
+                            technologies: ['ESLint', 'PostCSS', 'Autoprefixer', 'Hot Reload']
+                        },
+                        {
+                            name: '运行环境',
+                            icon: '🖥️',
+                            technologies: ['Node.js', 'Chromium', 'macOS/Windows/Linux', 'Native Modules']
+                        }
+                    ]
+                }
+            ];
+
+            const stats = [
+                { number: '6', label: '架构层次' },
+                { number: '25+', label: '核心技术' },
+                { number: '3', label: '主要平台' },
+                { number: '5+', label: 'AI模型集成' }
+            ];
+
+            const handleKeyPress = (event) => {
+                console.log('按键:', event.key); // 调试信息
+                switch(event.key.toLowerCase()) {
+                    case 'a':
+                        setAnimationEnabled(!animationEnabled);
+                        console.log('切换动画:', !animationEnabled);
+                        break;
+                    case 'r':
+                        setSelectedLayer(null);
+                        console.log('重置选择');
+                        break;
+                    case 'h':
+                        setControlPanelVisible(!controlPanelVisible);
+                        console.log('切换控制面板:', !controlPanelVisible);
+                        break;
+                    case ' ':
+                        event.preventDefault();
+                        // 滚动到顶部
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        console.log('适应视图');
+                        break;
+                    case 'escape':
+                        setSelectedLayer(null);
+                        break;
+                }
+            };
+
+            useEffect(() => {
+                document.addEventListener('keydown', handleKeyPress);
+                return () => document.removeEventListener('keydown', handleKeyPress);
+            }, [animationEnabled, controlPanelVisible]);
+
+            return (
+                <div className="architecture-container">
+                    <div className="header">
+                        <h1>AI面试提词产品 - 分层技术架构</h1>
+                        <p>从表现层到基础设施的完整技术栈可视化</p>
+                    </div>
+
+                    <div className="layers-container">
+                        {layers.map((layer, index) => (
+                            <React.Fragment key={layer.id}>
+                                <div 
+                                    className={`layer ${animationEnabled ? 'breathing-animation' : ''} ${selectedLayer === layer.id ? 'selected' : ''}`}
+                                    onClick={() => setSelectedLayer(selectedLayer === layer.id ? null : layer.id)}
+                                    style={{ animationDelay: `${index * 0.2}s` }}
+                                >
+                                    <div className="layer-header">
+                                        <div className="layer-title">
+                                            <div className="layer-icon">{layer.icon}</div>
+                                            <div>
+                                                <div className="layer-name">{layer.name}</div>
+                                                <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem', marginTop: '5px' }}>
+                                                    {layer.description}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="layer-level">{layer.level}</div>
+                                    </div>
+                                    
+                                    <div className="layer-content">
+                                        {layer.techGroups.map((group, groupIndex) => (
+                                            <div key={groupIndex} className="tech-group">
+                                                <h4>
+                                                    <span>{group.icon}</span>
+                                                    {group.name}
+                                                </h4>
+                                                <div className="tech-list">
+                                                    {group.technologies.map((tech, techIndex) => (
+                                                        <div key={techIndex} className="tech-item">
+                                                            {tech}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                {index < layers.length - 1 && (
+                                    <div className="data-flow">
+                                        <div className="flow-arrow"></div>
+                                    </div>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+
+                    <div className="stats-panel">
+                        <h3 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.5rem' }}>架构统计</h3>
+                        <div className="stats-grid">
+                            {stats.map((stat, index) => (
+                                <div key={index} className="stat-item">
+                                    <div className="stat-number">{stat.number}</div>
+                                    <div className="stat-label">{stat.label}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {!controlPanelVisible && (
+                        <div className="floating-hint">
+                            按 H 显示控制面板
+                        </div>
+                    )}
+
+                    {controlPanelVisible && (
+                        <div className="control-panel">
+                            <h3>🎛️ 控制面板</h3>
+                            <div className="control-item">
+                                <span>动画效果: {animationEnabled ? '✅' : '❌'}</span>
+                            </div>
+                            <div className="control-item">
+                                <span>控制面板: {controlPanelVisible ? '👀' : '🙈'}</span>
+                            </div>
+                            <div className="control-item">
+                                <span>A - 切换动画</span>
+                            </div>
+                            <div className="control-item">
+                                <span>R - 重置选择</span>
+                            </div>
+                            <div className="control-item">
+                                <span>H - 隐藏面板</span>
+                            </div>
+                            <div className="control-item">
+                                <span>空格 - 回到顶部</span>
+                            </div>
+                            <div className="control-item">
+                                <span>ESC - 取消选择</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<LayeredArchitecture />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="技术栈架构图" id="tech-stack-architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 标题 -->
+        <mxCell id="title" value="技术栈架构图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#2c3e50;" vertex="1" parent="1">
+          <mxGeometry x="450" y="30" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 前端技术栈 -->
+        <mxCell id="frontend-stack" value="前端技术栈" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e3f2fd;strokeColor=#1976d2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="480" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- 前端框架 -->
+        <mxCell id="frontend-frameworks" value="框架与库" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="frontend-stack">
+          <mxGeometry y="26" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="frontend-tech" value="React 18     |     TypeScript     |     Electron     |     Vite     |     Tailwind CSS     |     Ant Design" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="frontend-frameworks">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 前端工具 -->
+        <mxCell id="frontend-tools" value="开发工具" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="frontend-stack">
+          <mxGeometry y="106" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="frontend-dev-tools" value="ESLint     |     Prettier     |     Husky     |     Jest     |     React Testing Library     |     Storybook" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="frontend-tools">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 后端技术栈 -->
+        <mxCell id="backend-stack" value="后端技术栈" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="600" y="100" width="480" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- 后端框架 -->
+        <mxCell id="backend-frameworks" value="框架与运行时" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="backend-stack">
+          <mxGeometry y="26" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="backend-tech" value="Node.js     |     Express.js     |     TypeScript     |     Prisma ORM     |     GraphQL     |     Socket.io" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="backend-frameworks">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 后端工具 -->
+        <mxCell id="backend-tools" value="开发工具" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="backend-stack">
+          <mxGeometry y="106" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="backend-dev-tools" value="Nodemon     |     PM2     |     Winston     |     Joi     |     Swagger     |     Docker" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="backend-tools">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据存储层 -->
+        <mxCell id="data-storage" value="数据存储层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="1">
+          <mxGeometry x="80" y="340" width="480" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据库 -->
+        <mxCell id="databases" value="数据库" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="data-storage">
+          <mxGeometry y="26" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="database-tech" value="PostgreSQL     |     Redis     |     Elasticsearch     |     MinIO     |     InfluxDB" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="databases">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 消息队列 -->
+        <mxCell id="message-queue" value="消息队列" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="data-storage">
+          <mxGeometry y="106" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="mq-tech" value="RabbitMQ     |     Apache Kafka     |     Bull Queue     |     Redis Pub/Sub" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="message-queue">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- AI与机器学习 -->
+        <mxCell id="ai-ml-stack" value="AI与机器学习" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="600" y="340" width="480" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- AI服务 -->
+        <mxCell id="ai-services" value="AI服务" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="ai-ml-stack">
+          <mxGeometry y="26" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ai-tech" value="OpenAI GPT-4     |     Claude     |     Whisper     |     TTS     |     LangChain     |     Vector DB" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="ai-services">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- ML工具 -->
+        <mxCell id="ml-tools" value="机器学习工具" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff8e1;strokeColor=#ff8f00;" vertex="1" parent="ai-ml-stack">
+          <mxGeometry y="106" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ml-tech" value="TensorFlow.js     |     Python     |     Jupyter     |     Pandas     |     NumPy     |     Scikit-learn" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="ml-tools">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 基础设施层 -->
+        <mxCell id="infrastructure" value="基础设施层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e0f2f1;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="80" y="580" width="480" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- 容器化 -->
+        <mxCell id="containerization" value="容器化与编排" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="infrastructure">
+          <mxGeometry y="26" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="container-tech" value="Docker     |     Kubernetes     |     Helm     |     Docker Compose     |     Istio" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="containerization">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 云服务 -->
+        <mxCell id="cloud-services" value="云服务" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="infrastructure">
+          <mxGeometry y="106" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="cloud-tech" value="AWS     |     阿里云     |     腾讯云     |     CloudFlare     |     Vercel     |     Netlify" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="cloud-services">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 监控运维 -->
+        <mxCell id="monitoring-ops" value="监控运维" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff8e1;strokeColor=#ff8f00;" vertex="1" parent="1">
+          <mxGeometry x="600" y="580" width="480" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- 监控系统 -->
+        <mxCell id="monitoring-systems" value="监控系统" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="monitoring-ops">
+          <mxGeometry y="26" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="monitoring-tech" value="Prometheus     |     Grafana     |     Jaeger     |     ELK Stack     |     Sentry     |     New Relic" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="monitoring-systems">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- CI/CD -->
+        <mxCell id="cicd-systems" value="CI/CD系统" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="monitoring-ops">
+          <mxGeometry y="106" width="480" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="cicd-tech" value="Jenkins     |     GitHub Actions     |     GitLab CI     |     ArgoCD     |     Tekton     |     Spinnaker" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="cicd-systems">
+          <mxGeometry y="20" width="480" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 安全与认证 -->
+        <mxCell id="security-auth" value="安全与认证" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fce4ec;strokeColor=#ad1457;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="100" width="200" height="680" as="geometry" />
+        </mxCell>
+        
+        <!-- 认证授权 -->
+        <mxCell id="auth-systems" value="认证授权" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="security-auth">
+          <mxGeometry y="26" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="auth-tech" value="• JWT&#xa;• OAuth 2.0&#xa;• RBAC&#xa;• SAML&#xa;• LDAP&#xa;• 2FA" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="auth-systems">
+          <mxGeometry y="20" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 加密安全 -->
+        <mxCell id="encryption-security" value="加密安全" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="security-auth">
+          <mxGeometry y="146" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="encryption-tech" value="• HTTPS/TLS&#xa;• AES-256&#xa;• RSA&#xa;• bcrypt&#xa;• Argon2&#xa;• OWASP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="encryption-security">
+          <mxGeometry y="20" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 安全工具 -->
+        <mxCell id="security-tools" value="安全工具" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="security-auth">
+          <mxGeometry y="266" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="security-tools-tech" value="• Helmet.js&#xa;• CORS&#xa;• Rate Limiting&#xa;• Snyk&#xa;• SonarQube&#xa;• Vault" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="security-tools">
+          <mxGeometry y="20" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 支付安全 -->
+        <mxCell id="payment-security" value="支付安全" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="security-auth">
+          <mxGeometry y="386" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="payment-tech" value="• Stripe&#xa;• 支付宝&#xa;• 微信支付&#xa;• PCI DSS&#xa;• 3D Secure&#xa;• Webhook" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="payment-security">
+          <mxGeometry y="20" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 合规审计 -->
+        <mxCell id="compliance-audit" value="合规审计" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=20;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff8e1;strokeColor=#ff8f00;" vertex="1" parent="security-auth">
+          <mxGeometry y="506" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="compliance-tech" value="• GDPR&#xa;• SOC 2&#xa;• ISO 27001&#xa;• 等保2.0&#xa;• 审计日志&#xa;• 数据脱敏" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="compliance-audit">
+          <mxGeometry y="20" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接线 -->
+        
+        <!-- 前端到后端 -->
+        <mxCell id="frontend-to-backend" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=3;" edge="1" parent="1" source="frontend-stack" target="backend-stack">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="frontend-backend-label" value="API调用" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#1976d2;" vertex="1" parent="1">
+          <mxGeometry x="570" y="180" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 后端到数据存储 -->
+        <mxCell id="backend-to-data" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#2e7d32;strokeWidth=3;" edge="1" parent="1" source="backend-stack" target="data-storage">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="backend-data-label" value="数据访问" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="520" y="310" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 后端到AI -->
+        <mxCell id="backend-to-ai" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#7b1fa2;strokeWidth=3;" edge="1" parent="1" source="backend-stack" target="ai-ml-stack">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="backend-ai-label" value="AI集成" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="420" width="60" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据存储到基础设施 -->
+        <mxCell id="data-to-infra" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#f57c00;strokeWidth=3;" edge="1" parent="1" source="data-storage" target="infrastructure">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="600" as="sourcePoint" />
+            <mxPoint x="450" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="data-infra-label" value="部署运行" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#f57c00;" vertex="1" parent="1">
+          <mxGeometry x="290" y="550" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- AI到监控 -->
+        <mxCell id="ai-to-monitoring" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#ff8f00;strokeWidth=3;" edge="1" parent="1" source="ai-ml-stack" target="monitoring-ops">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="600" as="sourcePoint" />
+            <mxPoint x="450" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="ai-monitoring-label" value="性能监控" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#ff8f00;" vertex="1" parent="1">
+          <mxGeometry x="810" y="550" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 安全连接 -->
+        <mxCell id="security-to-all" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#ad1457;strokeWidth=2;dashed=1;" edge="1" parent="1" source="security-auth" target="backend-stack">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="security-label" value="安全保护" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#ad1457;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="180" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 技术栈版本信息 -->
+        <mxCell id="version-info" value="版本信息:&#xa;• Node.js 18+&#xa;• React 18&#xa;• TypeScript 5.0&#xa;• PostgreSQL 15&#xa;• Redis 7.0&#xa;• Docker 24.0" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ff8f00;align=left;" vertex="1" parent="1">
+          <mxGeometry x="80" y="820" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- 开发环境 -->
+        <mxCell id="dev-env" value="开发环境:&#xa;• VS Code&#xa;• Git&#xa;• Postman&#xa;• DBeaver&#xa;• Redis Desktop&#xa;• Docker Desktop" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1976d2;align=left;" vertex="1" parent="1">
+          <mxGeometry x="320" y="820" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- 性能指标 -->
+        <mxCell id="performance-metrics" value="性能指标:&#xa;• 响应时间 &lt; 200ms&#xa;• 并发用户 &gt; 10K&#xa;• 可用性 99.9%&#xa;• 数据一致性&#xa;• 容错恢复&#xa;• 水平扩展" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;align=left;" vertex="1" parent="1">
+          <mxGeometry x="560" y="820" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- 质量保证 -->
+        <mxCell id="quality-assurance" value="质量保证:&#xa;• 单元测试 &gt; 80%&#xa;• 集成测试&#xa;• E2E测试&#xa;• 代码审查&#xa;• 静态分析&#xa;• 安全扫描" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;align=left;" vertex="1" parent="1">
+          <mxGeometry x="800" y="820" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- 架构原则 -->
+        <mxCell id="architecture-principles" value="架构原则:&#xa;• 微服务架构&#xa;• 领域驱动设计&#xa;• 事件驱动&#xa;• CQRS模式&#xa;• 最终一致性&#xa;• 幂等性设计" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f57c00;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="820" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

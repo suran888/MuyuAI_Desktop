@@ -1,0 +1,76 @@
+# electron-builder.yml
+
+# The unique application ID
+appId: com.muyulab.muyu
+
+# Custom notarization script (uses xcrun notarytool directly)
+afterSign: ./notarize.js
+
+# The user-facing application name
+productName: 幕语
+
+# Custom artifact naming
+artifactName: muyu-${version}-${os}-${arch}.${ext}
+
+# Publish configuration - Volcengine TOS for China users
+publish:
+    provider: generic
+    url: https://desktop-release.tos-cn-beijing.volces.com/
+
+# List of files to be included in the app package
+files:
+    - src/**/*
+    - package.json
+    - '!**/node_modules/electron/**'
+    - public/build/**/*
+    - .env.production
+
+asarUnpack:
+    - 'src/ui/assets/SystemAudioDump'
+    - '**/node_modules/sharp/**/*'
+    - '**/node_modules/@img/**/*'
+
+# Windows configuration
+win:
+    icon: src/ui/assets/logo.ico
+    target:
+        - target: nsis
+        - target: portable
+    requestedExecutionLevel: asInvoker
+    signAndEditExecutable: false
+    forceCodeSigning: false
+    # cscLink: build\certs\glass-dev.pfx
+    # cscKeyPassword: "${env.CSC_KEY_PASSWORD}"
+    # signtoolOptions:
+    # certificateSubjectName: "Glass Dev Code Signing"
+
+# NSIS installer configuration for Windows
+nsis:
+    oneClick: false
+    perMachine: false
+    allowToChangeInstallationDirectory: true
+    deleteAppDataOnUninstall: true
+    createDesktopShortcut: always
+    createStartMenuShortcut: true
+    shortcutName: 幕语
+    # 确保安装程序图标与应用主图标一致（同时也与 macOS 使用的视觉来源保持一致）
+    installerIcon: src/ui/assets/logo.ico
+    uninstallerIcon: src/ui/assets/logo.ico
+
+# macOS specific configuration
+mac:
+    # The application category type
+    category: public.app-category.utilities
+    # Path to the .icns icon file
+    icon: src/ui/assets/logo.icns
+    # Minimum macOS version (supports both Intel and Apple Silicon)
+    minimumSystemVersion: '11.0'
+    hardenedRuntime: true
+    gatekeeperAssess: false
+    entitlements: entitlements.plist
+    entitlementsInherit: entitlements.plist
+    # Disable built-in notarization, use custom afterSign hook instead
+    notarize: false
+    target:
+        - target: dmg
+        - target: zip

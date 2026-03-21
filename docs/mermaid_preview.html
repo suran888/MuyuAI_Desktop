@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 面试提词产品设计文档 - 图表预览</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+    <script src="https://viewer.diagrams.net/js/viewer-static.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+
+        .diagram-container {
+            text-align: center;
+            margin: 30px 0;
+            background: #fff;
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .diagram-container iframe {
+            border: none;
+            width: 100%;
+        }
+
+        .diagram-placeholder {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            margin: 20px 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        pre {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border-left: 4px solid #3498db;
+        }
+
+        blockquote {
+            border-left: 4px solid #bdc3c7;
+            margin: 0;
+            padding-left: 20px;
+            color: #7f8c8d;
+        }
+
+        @media print {
+            .controls {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .diagram-container {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="controls">
+        <button class="btn" onclick="window.print()">打印/导出PDF</button>
+        <button class="btn" onclick="toggleTheme()">切换主题</button>
+        <button class="btn" onclick="refreshDiagrams()">刷新图表</button>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading">
+            <h3>正在加载文档...</h3>
+            <p>请稍候，正在解析 Markdown 文件并渲染图表</p>
+        </div>
+
+        <div id="content" style="display: none;"></div>
+
+        <div id="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        let isDarkTheme = false;
+        let diagramCounter = 0;
+
+        // 自定义渲染器来处理Draw.io图表
+        const renderer = new marked.Renderer();
+
+        // 重写图片渲染方法来处理Draw.io文件
+        renderer.image = function (href, title, text) {
+            if (href.endsWith('.drawio')) {
+                diagramCounter++;
+                const diagramId = `diagram-${diagramCounter}`;
+
+                // 创建一个容器来显示Draw.io图表
+                return `
+                    <div class="diagram-container" id="${diagramId}-container">
+                        <h4>${text || '图表'}</h4>
+                        <div id="${diagramId}" data-src="${href}" class="drawio-diagram">
+                            <div class="diagram-placeholder">
+                                <p>正在加载 Draw.io 图表...</p>
+                                <p>文件: ${href}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 普通图片的默认处理
+                return `<img src="${href}" alt="${text}" title="${title || ''}" />`;
+            }
+        };
+
+        // 配置marked
+        marked.setOptions({
+            renderer: renderer,
+            gfm: true,
+            breaks: true,
+            sanitize: false
+        });
+
+        // 加载并渲染Draw.io图表
+        async function loadDrawioDiagram(element, src) {
+            try {
+                const response = await fetch(src);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const xmlContent = await response.text();
+
+                // 使用Draw.io viewer来渲染图表
+                const viewerUrl = `https://viewer.diagrams.net/?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=${encodeURIComponent(src)}#R${encodeURIComponent(xmlContent)}`;
+
+                element.innerHTML = `
+                    <iframe src="${viewerUrl}" 
+                            style="width: 100%; height: 600px; border: none;"
+                            title="Draw.io 图表">
+                    </iframe>
+                `;
+
+            } catch (error) {
+                console.error('加载Draw.io图表失败:', error);
+                element.innerHTML = `
+                    <div class="diagram-placeholder">
+                        <p style="color: #e74c3c;">❌ 图表加载失败</p>
+                        <p>文件: ${src}</p>
+                        <p>错误: ${error.message}</p>
+                        <button class="btn" onclick="loadDrawioDiagram(this.parentElement.parentElement, '${src}')">重试</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 加载Markdown文档
+        async function loadDocument() {
+            try {
+                const response = await fetch('ai_interview_prompt_product.md');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const markdown = await response.text();
+                const html = marked.parse(markdown);
+
+                document.getElementById('content').innerHTML = html;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+
+                // 加载所有Draw.io图表
+                const diagrams = document.querySelectorAll('.drawio-diagram');
+                diagrams.forEach(diagram => {
+                    const src = diagram.getAttribute('data-src');
+                    if (src) {
+                        loadDrawioDiagram(diagram, src);
+                    }
+                });
+
+            } catch (error) {
+                console.error('加载文档失败:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').innerHTML = `
+                    <div class="error">
+                        <h3>文档加载失败</h3>
+                        <p>错误信息: ${error.message}</p>
+                        <p>请确保文件 'ai_interview_prompt_product.md' 存在且可访问。</p>
+                        <button class="btn" onclick="loadDocument()">重新加载</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 主题切换功能
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            if (isDarkTheme) {
+                document.body.style.backgroundColor = '#2c3e50';
+                document.body.style.color = '#ecf0f1';
+                document.querySelector('.container').style.backgroundColor = '#34495e';
+            } else {
+                document.body.style.backgroundColor = '#f8f9fa';
+                document.body.style.color = '#333';
+                document.querySelector('.container').style.backgroundColor = 'white';
+            }
+        }
+
+        // 刷新图表功能
+        function refreshDiagrams() {
+            const diagrams = document.querySelectorAll('.drawio-diagram');
+            diagrams.forEach(diagram => {
+                const src = diagram.getAttribute('data-src');
+                if (src) {
+                    diagram.innerHTML = `
+                        <div class="diagram-placeholder">
+                            <p>正在重新加载 Draw.io 图表...</p>
+                            <p>文件: ${src}</p>
+                        </div>
+                    `;
+                    setTimeout(() => {
+                        loadDrawioDiagram(diagram, src);
+                    }, 100);
+                }
+            });
+        }
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', loadDocument);
+    </script>
+</body>
+
+</html>

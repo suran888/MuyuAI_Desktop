@@ -1,0 +1,391 @@
+/**
+ * 作用：Electron 预加载脚本（preload）。
+ * - 在启用 contextIsolation 的情况下，通过 contextBridge 将一组安全、白名单的 API 暴露到渲染进程的 `window.api`。
+ * - 负责封装与主进程的 IPC 通信（`invoke`/`send`/`on`/`remove`），避免在渲染进程直接使用 Node/Electron 原生对象。
+ * - 按功能模块组织命名空间，便于 UI 组件调用：
+ *   `platform`, `common`, `apiKeyHeader`, `headerController`, `mainHeader`, `permissionHeader`,
+ *   `muyuApp`, `askView`, `listenView`, `sttView`, `liveInsights`, `summaryView`,
+ *   `settingsView`, `shortcutSettingsView`, `content`, `listenCapture`, `renderer`。
+ * - 提供跨组件的常用能力：用户与认证、窗口管理、模型配置与安装、快捷键、实时 Live Insights 流式回答、音频采集等。
+ * - 安全性：仅暴露白名单方法；渲染进程无法访问 Node/Electron 全局，降低 XSS 与提权风险。
+ */
+// src/preload.js
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('api', {
+  // Platform information for renderer processes
+  platform: {
+    isLinux: process.platform === 'linux',
+    isMacOS: process.platform === 'darwin',
+    isWindows: process.platform === 'win32',
+    platform: process.platform
+  },
+
+  // Common utilities used across multiple components
+  common: {
+    // User & Auth
+    getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
+
+    // App Control
+    quitApplication: () => ipcRenderer.invoke('quit-application'),
+    openExternal: (url) => ipcRenderer.invoke('open-external', url),
+
+    // Config / URLs
+    getWebUrl: () => ipcRenderer.invoke('get-web-url'),
+
+    // User state listener (used by multiple components)
+    onUserStateChanged: (callback) => ipcRenderer.on('user-state-changed', callback),
+    removeOnUserStateChanged: (callback) => ipcRenderer.removeListener('user-state-changed', callback),
+
+    // User time summary listener（用于同步剩余时长）
+    onUserTimeSummaryUpdated: (callback) => ipcRenderer.on('user-time-summary-updated', callback),
+    removeOnUserTimeSummaryUpdated: (callback) => ipcRenderer.removeListener('user-time-summary-updated', callback),
+    
+    // Window size change listener（用于同步窗口大小变化）
+    onWindowSizeChanged: (callback) => ipcRenderer.on('window:size-changed', callback),
+    removeOnWindowSizeChanged: (callback) => ipcRenderer.removeListener('window:size-changed', callback),
+  },
+
+  // Interview passcode gate
+  passcode: {
+    getStatus: () => ipcRenderer.invoke('passcode:get-status'),
+    verify: (code) => ipcRenderer.invoke('passcode:verify', code),
+    getUserTimeSummary: () => ipcRenderer.invoke('passcode:get-user-time-summary'),
+    startRecordingHeartbeat: () => ipcRenderer.invoke('passcode:start-recording-heartbeat'),
+    stopRecordingHeartbeat: () => ipcRenderer.invoke('passcode:stop-recording-heartbeat'),
+  },
+
+  // UI Component specific namespaces
+  // src/ui/app/ApiKeyHeader.js
+  apiKeyHeader: {
+    // Model & Provider Management
+    getProviderConfig: () => ipcRenderer.invoke('model:get-provider-config'),
+    // LocalAI integration API
+    getLocalAIStatus: (service) => ipcRenderer.invoke('localai:get-status', service),
+    installLocalAI: (service, options) => ipcRenderer.invoke('localai:install', { service, options }),
+    startLocalAIService: (service) => ipcRenderer.invoke('localai:start-service', service),
+    stopLocalAIService: (service) => ipcRenderer.invoke('localai:stop-service', service),
+    installLocalAIModel: (service, modelId, options) => ipcRenderer.invoke('localai:install-model', { service, modelId, options }),
+    getInstalledModels: (service) => ipcRenderer.invoke('localai:get-installed-models', service),
+
+    // Legacy support (kept for compatibility)
+    getOllamaStatus: () => ipcRenderer.invoke('localai:get-status', 'ollama'),
+    getModelSuggestions: () => ipcRenderer.invoke('ollama:get-model-suggestions'),
+    ensureOllamaReady: () => ipcRenderer.invoke('ollama:ensure-ready'),
+    installOllama: () => ipcRenderer.invoke('localai:install', { service: 'ollama' }),
+    startOllamaService: () => ipcRenderer.invoke('localai:start-service', 'ollama'),
+    pullOllamaModel: (modelName) => ipcRenderer.invoke('ollama:pull-model', modelName),
+    downloadWhisperModel: (modelId) => ipcRenderer.invoke('whisper:download-model', modelId),
+    validateKey: (data) => ipcRenderer.invoke('model:validate-key', data),
+    setSelectedModel: (data) => ipcRenderer.invoke('model:set-selected-model', data),
+    areProvidersConfigured: () => ipcRenderer.invoke('model:are-providers-configured'),
+
+    // Window Management
+    getHeaderPosition: () => ipcRenderer.invoke('get-header-position'),
+    moveHeaderTo: (x, y) => ipcRenderer.invoke('move-header-to', x, y),
+
+    // Listeners
+    // LocalAI unified event listeners
+    onLocalAIProgress: (callback) => ipcRenderer.on('localai:install-progress', callback),
+    removeOnLocalAIProgress: (callback) => ipcRenderer.removeListener('localai:install-progress', callback),
+    onLocalAIComplete: (callback) => ipcRenderer.on('localai:installation-complete', callback),
+    removeOnLocalAIComplete: (callback) => ipcRenderer.removeListener('localai:installation-complete', callback),
+    onLocalAIError: (callback) => ipcRenderer.on('localai:error-notification', callback),
+    removeOnLocalAIError: (callback) => ipcRenderer.removeListener('localai:error-notification', callback),
+    onLocalAIModelReady: (callback) => ipcRenderer.on('localai:model-ready', callback),
+    removeOnLocalAIModelReady: (callback) => ipcRenderer.removeListener('localai:model-ready', callback),
+
+
+    // Remove all listeners (for cleanup)
+    removeAllListeners: () => {
+      // LocalAI unified events
+      ipcRenderer.removeAllListeners('localai:install-progress');
+      ipcRenderer.removeAllListeners('localai:installation-complete');
+      ipcRenderer.removeAllListeners('localai:error-notification');
+      ipcRenderer.removeAllListeners('localai:model-ready');
+      ipcRenderer.removeAllListeners('localai:service-status-changed');
+    }
+  },
+
+  // src/ui/app/HeaderController.js
+  headerController: {
+    // State Management
+    sendHeaderStateChanged: (state) => ipcRenderer.send('header-state-changed', state),
+    reInitializeModelState: () => ipcRenderer.invoke('model:re-initialize-state'),
+
+    // Window Management
+    resizeHeaderWindow: (dimensions) => ipcRenderer.invoke('resize-header-window', dimensions),
+    resizeMainWindow: (params) => ipcRenderer.send('resize-main-window', params),
+    clearResizeState: () => ipcRenderer.send('clear-window-resize-state'),
+
+    // Permissions
+    checkSystemPermissions: () => ipcRenderer.invoke('check-system-permissions'),
+    checkPermissionsCompleted: () => ipcRenderer.invoke('check-permissions-completed'),
+
+    // Listeners
+    onUserStateChanged: (callback) => ipcRenderer.on('user-state-changed', callback),
+    removeOnUserStateChanged: (callback) => ipcRenderer.removeListener('user-state-changed', callback),
+    onAuthFailed: (callback) => ipcRenderer.on('auth-failed', callback),
+    removeOnAuthFailed: (callback) => ipcRenderer.removeListener('auth-failed', callback),
+    onForceShowApiKeyHeader: (callback) => ipcRenderer.on('force-show-apikey-header', callback),
+    removeOnForceShowApiKeyHeader: (callback) => ipcRenderer.removeListener('force-show-apikey-header', callback),
+    isDebugForceMainHeader: async () => {
+      try {
+        return process.env.DEBUG_FORCE_MAIN_HEADER === 'true';
+      } catch (_) {
+        return false;
+      }
+    },
+  },
+
+  // src/ui/main/MainView.tsx (and other views that need header window management)
+  mainHeader: {
+    // Window Management
+    getHeaderPosition: () => ipcRenderer.invoke('get-header-position'),
+    moveHeaderTo: (x, y) => ipcRenderer.invoke('move-header-to', x, y),
+    sendHeaderAnimationFinished: (state) => ipcRenderer.send('header-animation-finished', state),
+
+    // Settings Window Management
+    cancelHideSettingsWindow: () => ipcRenderer.send('cancel-hide-settings-window'),
+    showSettingsWindow: () => ipcRenderer.send('show-settings-window'),
+    hideSettingsWindow: () => ipcRenderer.send('hide-settings-window'),
+
+    // Generic invoke (for dynamic channel names)
+    // invoke: (channel, ...args) => ipcRenderer.invoke(channel, ...args),
+    sendListenButtonClick: (listenButtonText) => ipcRenderer.invoke('listen:changeSession', listenButtonText),
+    sendAskButtonClick: () => ipcRenderer.invoke('ask:toggleAskButton'),
+    openLiveInsightsView: () => ipcRenderer.invoke('listen:showLiveView'),
+    openTranscriptView: () => ipcRenderer.invoke('listen:showTranscriptView'),
+    toggleTranscriptView: () => ipcRenderer.invoke('listen:toggleTranscriptView'),
+    sendToggleAllWindowsVisibility: () => ipcRenderer.invoke('shortcut:toggleAllWindowsVisibility'),
+
+    // Listeners
+    onListenChangeSessionResult: (callback) => ipcRenderer.on('listen:changeSessionResult', callback),
+    removeOnListenChangeSessionResult: (callback) => ipcRenderer.removeListener('listen:changeSessionResult', callback),
+    onShortcutsUpdated: (callback) => ipcRenderer.on('shortcuts-updated', callback),
+    removeOnShortcutsUpdated: (callback) => ipcRenderer.removeListener('shortcuts-updated', callback)
+  },
+
+  // src/ui/app/PermissionHeader.js
+  permissionHeader: {
+    // Permission Management
+    checkSystemPermissions: () => ipcRenderer.invoke('check-system-permissions'),
+    requestMicrophonePermission: () => ipcRenderer.invoke('request-microphone-permission'),
+    openSystemPreferences: (preference) => ipcRenderer.invoke('open-system-preferences', preference),
+    markKeychainCompleted: () => ipcRenderer.invoke('mark-keychain-completed'),
+    checkKeychainCompleted: (uid) => ipcRenderer.invoke('check-keychain-completed', uid),
+    initializeEncryptionKey: () => ipcRenderer.invoke('initialize-encryption-key')
+  },
+
+  // src/ui/app/MuyuApp.js
+  muyuApp: {
+    // Listeners
+    onClickThroughToggled: (callback) => ipcRenderer.on('click-through-toggled', callback),
+    removeOnClickThroughToggled: (callback) => ipcRenderer.removeListener('click-through-toggled', callback),
+    removeAllClickThroughListeners: () => ipcRenderer.removeAllListeners('click-through-toggled')
+  },
+
+  // src/ui/ask/AskView.tsx
+  askView: {
+    // Window Management
+    closeAskWindow: () => ipcRenderer.invoke('ask:closeAskWindow'),
+    adjustWindowHeight: (winName, height) => ipcRenderer.invoke('adjust-window-height', { winName, height }),
+
+    // Message Handling
+    sendMessage: (text, options) => ipcRenderer.invoke('ask:sendQuestionFromAsk', text, options),
+    sendQuestionFromInputPanel: (text) => ipcRenderer.invoke('ask:sendQuestionFromInputPanel', text),
+
+    // Listeners
+    onAskStateUpdate: (callback) => ipcRenderer.on('ask:stateUpdate', callback),
+    removeOnAskStateUpdate: (callback) => ipcRenderer.removeListener('ask:stateUpdate', callback),
+
+    onAskStreamError: (callback) => ipcRenderer.on('ask-response-stream-error', callback),
+    removeOnAskStreamError: (callback) => ipcRenderer.removeListener('ask-response-stream-error', callback),
+
+    onInputPanelStream: (callback) => ipcRenderer.on('ask:input-panel-stream', callback),
+    removeOnInputPanelStream: (callback) => ipcRenderer.removeListener('ask:input-panel-stream', callback),
+
+    // Listeners
+    onShowTextInput: (callback) => ipcRenderer.on('ask:showTextInput', callback),
+    removeOnShowTextInput: (callback) => ipcRenderer.removeListener('ask:showTextInput', callback),
+
+    onScrollResponseUp: (callback) => ipcRenderer.on('aks:scrollResponseUp', callback),
+    removeOnScrollResponseUp: (callback) => ipcRenderer.removeListener('aks:scrollResponseUp', callback),
+    onScrollResponseDown: (callback) => ipcRenderer.on('aks:scrollResponseDown', callback),
+    removeOnScrollResponseDown: (callback) => ipcRenderer.removeListener('aks:scrollResponseDown', callback)
+  },
+
+  // src/ui/screenshot/ScreenshotView.js
+  screenshotView: {
+    // Analysis
+    analyze: () => ipcRenderer.invoke('screenshot:analyze'),
+    toggle: () => ipcRenderer.invoke('screenshot:toggle'),
+    close: () => ipcRenderer.invoke('screenshot:close'),
+
+    // Listeners
+    onStateUpdate: (callback) => ipcRenderer.on('screenshot:stateUpdate', callback),
+    removeOnStateUpdate: (callback) => ipcRenderer.removeListener('screenshot:stateUpdate', callback),
+
+    onStreamError: (callback) => ipcRenderer.on('screenshot-stream-error', callback),
+    removeOnStreamError: (callback) => ipcRenderer.removeListener('screenshot-stream-error', callback)
+  },
+
+
+  // src/ui/listen/ListenView.js (deprecated - functionality moved to MainView.tsx)
+  listenView: {
+    // Window Management
+    adjustWindowHeight: (winName, height) => ipcRenderer.invoke('adjust-window-height', { winName, height }),
+
+    // Listeners
+    onSessionStateChanged: (callback) => ipcRenderer.on('session-state-changed', callback),
+    removeOnSessionStateChanged: (callback) => ipcRenderer.removeListener('session-state-changed', callback),
+    onSetView: (callback) => ipcRenderer.on('listen:set-view', callback),
+    removeOnSetView: (callback) => ipcRenderer.removeListener('listen:set-view', callback)
+  },
+
+  // src/ui/listen/stt/SttView.js
+  sttView: {
+    // Listeners
+    onSttUpdate: (callback) => ipcRenderer.on('stt-update', callback),
+    removeOnSttUpdate: (callback) => ipcRenderer.removeListener('stt-update', callback)
+  },
+
+  // Live Insights (Listen realtime assistant)
+  liveInsights: {
+    onPartialTranscript: (callback) => ipcRenderer.on('listen:partial-transcript', callback),
+    removeOnPartialTranscript: (callback) => ipcRenderer.removeListener('listen:partial-transcript', callback),
+    onTurnUpdate: (callback) => ipcRenderer.on('listen:turn-update', callback),
+    removeOnTurnUpdate: (callback) => ipcRenderer.removeListener('listen:turn-update', callback),
+    onTurnStateReset: (callback) => ipcRenderer.on('listen:turn-state-reset', callback),
+    removeOnTurnStateReset: (callback) => ipcRenderer.removeListener('listen:turn-state-reset', callback),
+    onLiveAnswer: (callback) => ipcRenderer.on('listen:live-answer', callback),
+    removeOnLiveAnswer: (callback) => ipcRenderer.removeListener('listen:live-answer', callback),
+    getTurnState: () => ipcRenderer.invoke('listen:getTurnState')
+  },
+
+  // src/ui/listen/summary/SummaryView.js
+  summaryView: {
+    // Message Handling
+    sendQuestionFromSummary: (text) => ipcRenderer.invoke('ask:sendQuestionFromSummary', text),
+
+    // Listeners
+    onSummaryUpdate: (callback) => ipcRenderer.on('summary-update', callback),
+    removeOnSummaryUpdate: (callback) => ipcRenderer.removeListener('summary-update', callback),
+    removeAllSummaryUpdateListeners: () => ipcRenderer.removeAllListeners('summary-update')
+  },
+
+  // src/ui/settings/SettingsView.js
+  settingsView: {
+    // User & Auth
+    getCurrentUser: () => ipcRenderer.invoke('get-current-user'),
+
+    // Model & Provider Management
+    getModelSettings: () => ipcRenderer.invoke('settings:get-model-settings'), // Facade call
+    getProviderConfig: () => ipcRenderer.invoke('model:get-provider-config'),
+    getAllKeys: () => ipcRenderer.invoke('model:get-all-keys'),
+    getAvailableModels: (type) => ipcRenderer.invoke('model:get-available-models', type),
+    getSelectedModels: () => ipcRenderer.invoke('model:get-selected-models'),
+    validateKey: (data) => ipcRenderer.invoke('model:validate-key', data),
+    saveApiKey: (key) => ipcRenderer.invoke('model:save-api-key', key),
+    removeApiKey: (provider) => ipcRenderer.invoke('model:remove-api-key', provider),
+    setSelectedModel: (data) => ipcRenderer.invoke('model:set-selected-model', data),
+
+    // Ollama Management
+    getOllamaStatus: () => ipcRenderer.invoke('ollama:get-status'),
+    ensureOllamaReady: () => ipcRenderer.invoke('ollama:ensure-ready'),
+    shutdownOllama: (graceful) => ipcRenderer.invoke('ollama:shutdown', graceful),
+
+    // Whisper Management
+    getWhisperInstalledModels: () => ipcRenderer.invoke('whisper:get-installed-models'),
+    downloadWhisperModel: (modelId) => ipcRenderer.invoke('whisper:download-model', modelId),
+
+    // Settings Management
+    getPresets: () => ipcRenderer.invoke('settings:getPresets'),
+    getAutoUpdate: () => ipcRenderer.invoke('settings:get-auto-update'),
+    setAutoUpdate: (isEnabled) => ipcRenderer.invoke('settings:set-auto-update', isEnabled),
+    getContentProtectionStatus: () => ipcRenderer.invoke('get-content-protection-status'),
+    toggleContentProtection: () => ipcRenderer.invoke('toggle-content-protection'),
+    getCurrentShortcuts: () => ipcRenderer.invoke('settings:getCurrentShortcuts'),
+    openShortcutSettingsWindow: () => ipcRenderer.invoke('shortcut:openShortcutSettingsWindow'),
+
+    // App Update
+    checkForUpdates: () => ipcRenderer.invoke('updater:check'),
+    getAppVersion: () => ipcRenderer.invoke('updater:get-version'),
+    getUpdateStatus: () => ipcRenderer.invoke('updater:get-status'),
+    installUpdate: () => ipcRenderer.invoke('updater:install'),
+    onUpdateStatus: (callback) => ipcRenderer.on('updater:status', callback),
+    removeOnUpdateStatus: (callback) => ipcRenderer.removeListener('updater:status', callback),
+
+    // Window Management
+    moveWindowStep: (direction) => ipcRenderer.invoke('move-window-step', direction),
+    cancelHideSettingsWindow: () => ipcRenderer.send('cancel-hide-settings-window'),
+    hideSettingsWindow: () => ipcRenderer.send('hide-settings-window'),
+
+    // App Control
+    stopInterviewSession: (sessionId) => ipcRenderer.invoke('passcode:stop-session', sessionId),
+    quitApplication: () => ipcRenderer.invoke('quit-application'),
+
+    // Progress Tracking
+    pullOllamaModel: (modelName) => ipcRenderer.invoke('ollama:pull-model', modelName),
+
+    // Listeners
+    onUserStateChanged: (callback) => ipcRenderer.on('user-state-changed', callback),
+    removeOnUserStateChanged: (callback) => ipcRenderer.removeListener('user-state-changed', callback),
+    onSettingsUpdated: (callback) => ipcRenderer.on('settings-updated', callback),
+    removeOnSettingsUpdated: (callback) => ipcRenderer.removeListener('settings-updated', callback),
+    onPresetsUpdated: (callback) => ipcRenderer.on('presets-updated', callback),
+    removeOnPresetsUpdated: (callback) => ipcRenderer.removeListener('presets-updated', callback),
+    onShortcutsUpdated: (callback) => ipcRenderer.on('shortcuts-updated', callback),
+    removeOnShortcutsUpdated: (callback) => ipcRenderer.removeListener('shortcuts-updated', callback),
+    // Use unified LocalAI events
+    onLocalAIInstallProgress: (callback) => ipcRenderer.on('localai:install-progress', callback),
+    removeOnLocalAIInstallProgress: (callback) => ipcRenderer.removeListener('localai:install-progress', callback),
+    onLocalAIInstallationComplete: (callback) => ipcRenderer.on('localai:installation-complete', callback),
+    removeOnLocalAIInstallationComplete: (callback) => ipcRenderer.removeListener('localai:installation-complete', callback)
+  },
+
+  // src/ui/settings/ShortCutSettingsView.js
+  shortcutSettingsView: {
+    // Shortcut Management
+    saveShortcuts: (shortcuts) => ipcRenderer.invoke('shortcut:saveShortcuts', shortcuts),
+    getDefaultShortcuts: () => ipcRenderer.invoke('shortcut:getDefaultShortcuts'),
+    closeShortcutSettingsWindow: () => ipcRenderer.invoke('shortcut:closeShortcutSettingsWindow'),
+
+    // Listeners
+    onLoadShortcuts: (callback) => ipcRenderer.on('shortcut:loadShortcuts', callback),
+    removeOnLoadShortcuts: (callback) => ipcRenderer.removeListener('shortcut:loadShortcuts', callback)
+  },
+
+  // src/ui/app/content.html inline scripts
+  content: {
+    // Listeners
+    onSettingsWindowHideAnimation: (callback) => ipcRenderer.on('settings-window-hide-animation', callback),
+    removeOnSettingsWindowHideAnimation: (callback) => ipcRenderer.removeListener('settings-window-hide-animation', callback),
+  },
+
+  // src/ui/listen/audioCore/listenCapture.js
+  listenCapture: {
+    // Audio Management
+    sendMicAudioContent: (data) => ipcRenderer.invoke('listen:sendMicAudio', data),
+    sendSystemAudioContent: (data) => ipcRenderer.invoke('listen:sendSystemAudio', data),
+    startMacosSystemAudio: () => ipcRenderer.invoke('listen:startMacosSystemAudio'),
+    stopMacosSystemAudio: () => ipcRenderer.invoke('listen:stopMacosSystemAudio'),
+    
+    // Manual Input
+    sendManualInput: (text, speaker) => ipcRenderer.invoke('listen:sendManualInput', { text, speaker }),
+
+    // Session Management
+    isSessionActive: () => ipcRenderer.invoke('listen:isSessionActive'),
+
+    // Listeners
+    onSystemAudioData: (callback) => ipcRenderer.on('system-audio-data', callback),
+    removeOnSystemAudioData: (callback) => ipcRenderer.removeListener('system-audio-data', callback)
+  },
+
+  // src/ui/listen/audioCore/renderer.js
+  renderer: {
+    // Listeners
+    onChangeListenCaptureState: (callback) => ipcRenderer.on('change-listen-capture-state', callback),
+    removeOnChangeListenCaptureState: (callback) => ipcRenderer.removeListener('change-listen-capture-state', callback)
+  }
+});

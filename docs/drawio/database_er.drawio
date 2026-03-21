@@ -1,0 +1,246 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="数据库ER图" id="database-er">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 标题 -->
+        <mxCell id="title" value="数据库ER图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#2c3e50;" vertex="1" parent="1">
+          <mxGeometry x="450" y="30" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 用户表 -->
+        <mxCell id="users-table" value="users" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e3f2fd;strokeColor=#1976d2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="200" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="users-fields" value="id (PK) - BIGINT&#xa;email - VARCHAR(255)&#xa;password_hash - VARCHAR(255)&#xa;username - VARCHAR(100)&#xa;full_name - VARCHAR(200)&#xa;avatar_url - VARCHAR(500)&#xa;role - ENUM(candidate, coach, admin)&#xa;status - ENUM(active, inactive, banned)&#xa;email_verified - BOOLEAN&#xa;phone - VARCHAR(20)&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="users-table">
+          <mxGeometry y="26" width="200" height="174" as="geometry" />
+        </mxCell>
+        
+        <!-- 简历表 -->
+        <mxCell id="resumes-table" value="resumes" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="320" y="100" width="200" height="160" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="resumes-fields" value="id (PK) - BIGINT&#xa;user_id (FK) - BIGINT&#xa;title - VARCHAR(200)&#xa;content - TEXT&#xa;file_url - VARCHAR(500)&#xa;file_type - VARCHAR(50)&#xa;file_size - BIGINT&#xa;is_default - BOOLEAN&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="resumes-table">
+          <mxGeometry y="26" width="200" height="134" as="geometry" />
+        </mxCell>
+        
+        <!-- 面试配置表 -->
+        <mxCell id="interview-configs-table" value="interview_configs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="1">
+          <mxGeometry x="560" y="100" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="interview-configs-fields" value="id (PK) - BIGINT&#xa;user_id (FK) - BIGINT&#xa;name - VARCHAR(200)&#xa;position - VARCHAR(100)&#xa;company - VARCHAR(200)&#xa;difficulty - ENUM(easy, medium, hard)&#xa;duration - INTEGER&#xa;question_types - JSON&#xa;ai_model - VARCHAR(50)&#xa;language - VARCHAR(10)&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="interview-configs-table">
+          <mxGeometry y="26" width="200" height="154" as="geometry" />
+        </mxCell>
+        
+        <!-- 面试会话表 -->
+        <mxCell id="interview-sessions-table" value="interview_sessions" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="800" y="100" width="200" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="interview-sessions-fields" value="id (PK) - BIGINT&#xa;user_id (FK) - BIGINT&#xa;config_id (FK) - BIGINT&#xa;resume_id (FK) - BIGINT&#xa;status - ENUM(pending, active, completed, cancelled)&#xa;start_time - TIMESTAMP&#xa;end_time - TIMESTAMP&#xa;duration - INTEGER&#xa;score - DECIMAL(5,2)&#xa;feedback - TEXT&#xa;recording_url - VARCHAR(500)&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="interview-sessions-table">
+          <mxGeometry y="26" width="200" height="174" as="geometry" />
+        </mxCell>
+        
+        <!-- 面试问题表 -->
+        <mxCell id="interview-questions-table" value="interview_questions" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="80" y="340" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="interview-questions-fields" value="id (PK) - BIGINT&#xa;session_id (FK) - BIGINT&#xa;question_text - TEXT&#xa;question_type - VARCHAR(50)&#xa;expected_answer - TEXT&#xa;user_answer - TEXT&#xa;ai_feedback - TEXT&#xa;score - DECIMAL(5,2)&#xa;duration - INTEGER&#xa;order_index - INTEGER&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="interview-questions-table">
+          <mxGeometry y="26" width="200" height="154" as="geometry" />
+        </mxCell>
+        
+        <!-- 提词记录表 -->
+        <mxCell id="prompt-records-table" value="prompt_records" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fce4ec;strokeColor=#ad1457;" vertex="1" parent="1">
+          <mxGeometry x="320" y="340" width="200" height="160" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="prompt-records-fields" value="id (PK) - BIGINT&#xa;session_id (FK) - BIGINT&#xa;question_id (FK) - BIGINT&#xa;prompt_text - TEXT&#xa;trigger_keyword - VARCHAR(100)&#xa;confidence_score - DECIMAL(5,2)&#xa;used_at - TIMESTAMP&#xa;effectiveness - ENUM(helpful, neutral, unhelpful)&#xa;created_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="prompt-records-table">
+          <mxGeometry y="26" width="200" height="134" as="geometry" />
+        </mxCell>
+        
+        <!-- 套餐表 -->
+        <mxCell id="packages-table" value="packages" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e0f2f1;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="560" y="340" width="200" height="160" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="packages-fields" value="id (PK) - BIGINT&#xa;name - VARCHAR(100)&#xa;description - TEXT&#xa;price - DECIMAL(10,2)&#xa;currency - VARCHAR(3)&#xa;duration_days - INTEGER&#xa;interview_count - INTEGER&#xa;features - JSON&#xa;is_active - BOOLEAN&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="packages-table">
+          <mxGeometry y="26" width="200" height="134" as="geometry" />
+        </mxCell>
+        
+        <!-- 订单表 -->
+        <mxCell id="orders-table" value="orders" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f1f8e9;strokeColor=#33691e;" vertex="1" parent="1">
+          <mxGeometry x="800" y="340" width="200" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="orders-fields" value="id (PK) - BIGINT&#xa;user_id (FK) - BIGINT&#xa;package_id (FK) - BIGINT&#xa;order_number - VARCHAR(50)&#xa;amount - DECIMAL(10,2)&#xa;currency - VARCHAR(3)&#xa;status - ENUM(pending, paid, cancelled, refunded)&#xa;payment_method - VARCHAR(50)&#xa;payment_id - VARCHAR(100)&#xa;paid_at - TIMESTAMP&#xa;expires_at - TIMESTAMP&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="orders-table">
+          <mxGeometry y="26" width="200" height="154" as="geometry" />
+        </mxCell>
+        
+        <!-- 用户套餐表 -->
+        <mxCell id="user-packages-table" value="user_packages" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff8e1;strokeColor=#ff8f00;" vertex="1" parent="1">
+          <mxGeometry x="80" y="560" width="200" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="user-packages-fields" value="id (PK) - BIGINT&#xa;user_id (FK) - BIGINT&#xa;package_id (FK) - BIGINT&#xa;order_id (FK) - BIGINT&#xa;remaining_interviews - INTEGER&#xa;expires_at - TIMESTAMP&#xa;is_active - BOOLEAN&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="user-packages-table">
+          <mxGeometry y="26" width="200" height="114" as="geometry" />
+        </mxCell>
+        
+        <!-- 系统日志表 -->
+        <mxCell id="system-logs-table" value="system_logs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fafafa;strokeColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="320" y="560" width="200" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="system-logs-fields" value="id (PK) - BIGINT&#xa;user_id (FK) - BIGINT&#xa;action - VARCHAR(100)&#xa;resource_type - VARCHAR(50)&#xa;resource_id - BIGINT&#xa;ip_address - VARCHAR(45)&#xa;user_agent - TEXT&#xa;details - JSON&#xa;created_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="system-logs-table">
+          <mxGeometry y="26" width="200" height="114" as="geometry" />
+        </mxCell>
+        
+        <!-- 设置表 -->
+        <mxCell id="settings-table" value="settings" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e8eaf6;strokeColor=#3f51b5;" vertex="1" parent="1">
+          <mxGeometry x="560" y="560" width="200" height="120" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="settings-fields" value="id (PK) - BIGINT&#xa;key - VARCHAR(100)&#xa;value - TEXT&#xa;type - VARCHAR(50)&#xa;description - TEXT&#xa;is_public - BOOLEAN&#xa;created_at - TIMESTAMP&#xa;updated_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="settings-table">
+          <mxGeometry y="26" width="200" height="94" as="geometry" />
+        </mxCell>
+        
+        <!-- 通知表 -->
+        <mxCell id="notifications-table" value="notifications" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#efebe9;strokeColor=#5d4037;" vertex="1" parent="1">
+          <mxGeometry x="800" y="560" width="200" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="notifications-fields" value="id (PK) - BIGINT&#xa;user_id (FK) - BIGINT&#xa;title - VARCHAR(200)&#xa;content - TEXT&#xa;type - VARCHAR(50)&#xa;is_read - BOOLEAN&#xa;read_at - TIMESTAMP&#xa;expires_at - TIMESTAMP&#xa;created_at - TIMESTAMP" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="notifications-table">
+          <mxGeometry y="26" width="200" height="114" as="geometry" />
+        </mxCell>
+        
+        <!-- 关系连线 -->
+        
+        <!-- users -> resumes (1:N) -->
+        <mxCell id="users-resumes-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=2;" edge="1" parent="1" source="users-fields" target="resumes-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- users -> interview_configs (1:N) -->
+        <mxCell id="users-configs-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=2;" edge="1" parent="1" source="users-fields" target="interview-configs-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- users -> interview_sessions (1:N) -->
+        <mxCell id="users-sessions-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=1;exitY=0.1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=2;" edge="1" parent="1" source="users-fields" target="interview-sessions-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- interview_configs -> interview_sessions (1:N) -->
+        <mxCell id="configs-sessions-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeColor=#7b1fa2;strokeWidth=2;" edge="1" parent="1" source="interview-configs-fields" target="interview-sessions-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- resumes -> interview_sessions (1:N) -->
+        <mxCell id="resumes-sessions-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeColor=#f57c00;strokeWidth=2;" edge="1" parent="1" source="resumes-fields" target="interview-sessions-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- interview_sessions -> interview_questions (1:N) -->
+        <mxCell id="sessions-questions-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;strokeColor=#2e7d32;strokeWidth=2;" edge="1" parent="1" source="interview-sessions-fields" target="interview-questions-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- interview_sessions -> prompt_records (1:N) -->
+        <mxCell id="sessions-prompts-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;strokeColor=#2e7d32;strokeWidth=2;" edge="1" parent="1" source="interview-sessions-fields" target="prompt-records-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- interview_questions -> prompt_records (1:N) -->
+        <mxCell id="questions-prompts-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#c62828;strokeWidth=2;" edge="1" parent="1" source="interview-questions-fields" target="prompt-records-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="450" as="sourcePoint" />
+            <mxPoint x="450" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- users -> orders (1:N) -->
+        <mxCell id="users-orders-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=2;" edge="1" parent="1" source="users-fields" target="orders-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="450" as="sourcePoint" />
+            <mxPoint x="450" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- packages -> orders (1:N) -->
+        <mxCell id="packages-orders-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeColor=#00695c;strokeWidth=2;" edge="1" parent="1" source="packages-fields" target="orders-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="450" as="sourcePoint" />
+            <mxPoint x="450" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- users -> user_packages (1:N) -->
+        <mxCell id="users-userpackages-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=2;" edge="1" parent="1" source="users-fields" target="user-packages-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- packages -> user_packages (1:N) -->
+        <mxCell id="packages-userpackages-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;strokeColor=#00695c;strokeWidth=2;" edge="1" parent="1" source="packages-fields" target="user-packages-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- orders -> user_packages (1:1) -->
+        <mxCell id="orders-userpackages-relation" value="" style="endArrow=ERone;html=1;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;strokeColor=#33691e;strokeWidth=2;" edge="1" parent="1" source="orders-fields" target="user-packages-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="550" as="sourcePoint" />
+            <mxPoint x="450" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- users -> system_logs (1:N) -->
+        <mxCell id="users-logs-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=2;" edge="1" parent="1" source="users-fields" target="system-logs-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- users -> notifications (1:N) -->
+        <mxCell id="users-notifications-relation" value="" style="endArrow=ERmany;html=1;rounded=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=2;" edge="1" parent="1" source="users-fields" target="notifications-fields">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="500" as="sourcePoint" />
+            <mxPoint x="450" y="450" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

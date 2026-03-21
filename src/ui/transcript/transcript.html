@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Transcript</title>
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="../../public/build/tailwind.css">
+    
+    <style>
+        :root {
+            --bg-color: #1E1E2E;
+            --text-color: #FFFFFF;
+            --me-bubble-color: #6C5CE7;
+            --them-bubble-color: #2D2D44;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #transcript-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.me {
+            align-self: flex-end;
+            background-color: var(--me-bubble-color);
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.them {
+            align-self: flex-start;
+            background-color: var(--them-bubble-color);
+            border-bottom-left-radius: 4px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- React will mount here -->
+    <div id="transcript-container"></div>
+    
+    <!-- React App Entry -->
+    <script type="module" src="../../public/build/transcript.js"></script>
+</body>
+
+</html>

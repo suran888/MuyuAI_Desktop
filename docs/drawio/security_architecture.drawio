@@ -1,0 +1,233 @@
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="5.0" etag="xxx" version="22.1.16" type="device">
+  <diagram name="安全架构图" id="security-architecture">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 标题 -->
+        <mxCell id="title" value="安全架构图" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#2c3e50;" vertex="1" parent="1">
+          <mxGeometry x="450" y="30" width="200" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- 外部威胁层 -->
+        <mxCell id="threat-layer" value="外部威胁" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="80" y="100" width="960" height="80" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="threat-components" value="DDoS攻击     |     SQL注入     |     XSS攻击     |     CSRF攻击     |     暴力破解     |     恶意爬虫     |     数据泄露" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="threat-layer">
+          <mxGeometry y="26" width="960" height="54" as="geometry" />
+        </mxCell>
+        
+        <!-- 网络安全层 -->
+        <mxCell id="network-security-layer" value="网络安全层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e3f2fd;strokeColor=#1976d2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="220" width="960" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- CDN/WAF -->
+        <mxCell id="cdn-waf" value="CDN + WAF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="network-security-layer">
+          <mxGeometry x="80" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 防火墙 -->
+        <mxCell id="firewall" value="防火墙" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="network-security-layer">
+          <mxGeometry x="240" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 负载均衡 -->
+        <mxCell id="load-balancer" value="负载均衡器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="network-security-layer">
+          <mxGeometry x="400" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- DDoS防护 -->
+        <mxCell id="ddos-protection" value="DDoS防护" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="network-security-layer">
+          <mxGeometry x="560" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- SSL/TLS -->
+        <mxCell id="ssl-tls" value="SSL/TLS加密" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#ad1457;" vertex="1" parent="network-security-layer">
+          <mxGeometry x="720" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 入侵检测 -->
+        <mxCell id="ids-ips" value="IDS/IPS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ff8f00;" vertex="1" parent="network-security-layer">
+          <mxGeometry x="880" y="40" width="60" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 应用安全层 -->
+        <mxCell id="app-security-layer" value="应用安全层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="380" width="960" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- 认证授权 -->
+        <mxCell id="auth-section" value="认证授权" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="40" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="auth-details" value="• JWT Token&#xa;• OAuth 2.0&#xa;• 多因子认证&#xa;• 密码策略&#xa;• 会话管理" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="20" y="110" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 权限控制 -->
+        <mxCell id="access-control" value="权限控制" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="200" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="access-details" value="• RBAC模型&#xa;• API权限&#xa;• 资源访问控制&#xa;• 操作审计&#xa;• 最小权限原则" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="180" y="110" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 输入验证 -->
+        <mxCell id="input-validation" value="输入验证" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="360" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="validation-details" value="• 参数校验&#xa;• SQL注入防护&#xa;• XSS过滤&#xa;• 文件上传检查&#xa;• 数据格式验证" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="340" y="110" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 限流熔断 -->
+        <mxCell id="rate-limiting" value="限流熔断" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="520" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="rate-details" value="• API限流&#xa;• 用户限流&#xa;• 熔断机制&#xa;• 降级策略&#xa;• 黑名单管理" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="500" y="110" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 安全头 -->
+        <mxCell id="security-headers" value="安全头" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="680" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="headers-details" value="• CSRF Token&#xa;• CORS策略&#xa;• CSP策略&#xa;• HSTS&#xa;• X-Frame-Options" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="660" y="110" width="160" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 加密存储 -->
+        <mxCell id="encryption" value="加密存储" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#ad1457;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="840" y="40" width="100" height="60" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="encryption-details" value="• 密码哈希&#xa;• 敏感数据加密&#xa;• 传输加密&#xa;• 密钥管理" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=10;" vertex="1" parent="app-security-layer">
+          <mxGeometry x="820" y="110" width="140" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据安全层 -->
+        <mxCell id="data-security-layer" value="数据安全层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e0f2f1;strokeColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="80" y="600" width="960" height="120" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据库安全 -->
+        <mxCell id="db-security" value="数据库安全" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;" vertex="1" parent="data-security-layer">
+          <mxGeometry x="80" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 备份恢复 -->
+        <mxCell id="backup-recovery" value="备份恢复" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;" vertex="1" parent="data-security-layer">
+          <mxGeometry x="240" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据脱敏 -->
+        <mxCell id="data-masking" value="数据脱敏" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#f57c00;" vertex="1" parent="data-security-layer">
+          <mxGeometry x="400" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 访问审计 -->
+        <mxCell id="audit-logging" value="访问审计" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;" vertex="1" parent="data-security-layer">
+          <mxGeometry x="560" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据分类 -->
+        <mxCell id="data-classification" value="数据分类" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;" vertex="1" parent="data-security-layer">
+          <mxGeometry x="720" y="40" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 合规管理 -->
+        <mxCell id="compliance" value="合规管理" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#ad1457;" vertex="1" parent="data-security-layer">
+          <mxGeometry x="880" y="40" width="60" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 监控告警层 -->
+        <mxCell id="monitoring-layer" value="监控告警层" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#f1f8e9;strokeColor=#33691e;" vertex="1" parent="1">
+          <mxGeometry x="80" y="760" width="960" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="monitoring-components" value="安全事件监控     |     异常行为检测     |     实时告警     |     日志分析     |     威胁情报     |     安全报告" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="monitoring-layer">
+          <mxGeometry y="26" width="960" height="74" as="geometry" />
+        </mxCell>
+        
+        <!-- 连接线和防护流程 -->
+        
+        <!-- 威胁到网络安全 -->
+        <mxCell id="threat-to-network" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#c62828;strokeWidth=3;" edge="1" parent="1" source="threat-layer" target="network-security-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="300" as="sourcePoint" />
+            <mxPoint x="450" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="threat-network-label" value="攻击流量" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#c62828;" vertex="1" parent="1">
+          <mxGeometry x="520" y="190" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 网络安全到应用安全 -->
+        <mxCell id="network-to-app" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#1976d2;strokeWidth=3;" edge="1" parent="1" source="network-security-layer" target="app-security-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="400" as="sourcePoint" />
+            <mxPoint x="450" y="350" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="network-app-label" value="过滤后流量" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#1976d2;" vertex="1" parent="1">
+          <mxGeometry x="520" y="350" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 应用安全到数据安全 -->
+        <mxCell id="app-to-data" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#7b1fa2;strokeWidth=3;" edge="1" parent="1" source="app-security-layer" target="data-security-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="600" as="sourcePoint" />
+            <mxPoint x="450" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="app-data-label" value="安全请求" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#7b1fa2;" vertex="1" parent="1">
+          <mxGeometry x="520" y="570" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 数据安全到监控 -->
+        <mxCell id="data-to-monitoring" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#00695c;strokeWidth=3;" edge="1" parent="1" source="data-security-layer" target="monitoring-layer">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="750" as="sourcePoint" />
+            <mxPoint x="450" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="data-monitoring-label" value="安全日志" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#00695c;" vertex="1" parent="1">
+          <mxGeometry x="520" y="730" width="80" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- 安全策略说明 -->
+        <mxCell id="security-policies" value="安全策略:&#xa;• 零信任架构&#xa;• 纵深防御&#xa;• 最小权限原则&#xa;• 持续监控&#xa;• 快速响应" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff8e1;strokeColor=#ff8f00;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="100" width="160" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 合规要求 -->
+        <mxCell id="compliance-requirements" value="合规要求:&#xa;• 网络安全法&#xa;• 数据保护法&#xa;• 个人信息保护法&#xa;• 等保2.0&#xa;• ISO 27001" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="220" width="160" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 应急响应 -->
+        <mxCell id="incident-response" value="应急响应:&#xa;• 事件分类&#xa;• 响应流程&#xa;• 恢复计划&#xa;• 事后分析&#xa;• 改进措施" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="340" width="160" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- 安全培训 -->
+        <mxCell id="security-training" value="安全培训:&#xa;• 开发安全培训&#xa;• 运维安全培训&#xa;• 用户安全意识&#xa;• 定期安全演练&#xa;• 安全文档更新" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e8;strokeColor=#2e7d32;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="460" width="160" height="100" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

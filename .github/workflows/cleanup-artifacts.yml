@@ -1,0 +1,99 @@
+name: Cleanup Old Artifacts
+on:
+  schedule:
+    # 每天凌晨 2 点运行
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🧹 清理旧的 Artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            // 获取所有 artifacts
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner,
+              repo,
+              per_page: 100
+            });
+            
+            console.log(`找到 ${artifacts.data.artifacts.length} 个 artifacts`);
+            
+            // 删除超过 2 天的 artifacts
+            // (build.yml 中设置了 retention-days: 1,这里作为额外保险)
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+            
+            let deletedCount = 0;
+            for (const artifact of artifacts.data.artifacts) {
+              const createdAt = new Date(artifact.created_at);
+              if (createdAt < twoDaysAgo) {
+                console.log(`删除旧 artifact: ${artifact.name} (ID: ${artifact.id}, 创建于: ${artifact.created_at})`);
+                try {
+                  await github.rest.actions.deleteArtifact({
+                    owner,
+                    repo,
+                    artifact_id: artifact.id
+                  });
+                  deletedCount++;
+                } catch (error) {
+                  console.log(`无法删除 artifact ${artifact.id}: ${error.message}`);
+                }
+              }
+            }
+            
+            console.log(`✅ 清理完成! 删除了 ${deletedCount} 个旧 artifacts`);
+
+      - name: 🧹 清理旧的 Workflow Runs (可选)
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            // 保留最近 30 天的 workflow runs
+            const daysToKeep = 30;
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+            
+            const workflows = await github.rest.actions.listRepoWorkflows({
+              owner,
+              repo
+            });
+            
+            for (const workflow of workflows.data.workflows) {
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner,
+                repo,
+                workflow_id: workflow.id,
+                per_page: 100
+              });
+              
+              for (const run of runs.data.workflow_runs) {
+                const runDate = new Date(run.created_at);
+                if (runDate < cutoffDate && run.status === 'completed') {
+                  console.log(`删除旧的 workflow run: ${run.name} (${run.id}) - ${run.created_at}`);
+                  try {
+                    await github.rest.actions.deleteWorkflowRun({
+                      owner,
+                      repo,
+                      run_id: run.id
+                    });
+                  } catch (error) {
+                    console.log(`无法删除 run ${run.id}: ${error.message}`);
+                  }
+                }
+              }
+            }
+            
+            console.log('✅ Workflow runs 清理完成!');
