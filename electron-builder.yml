@@ -53,12 +53,9 @@ nsis:
     createDesktopShortcut: always
     createStartMenuShortcut: true
     shortcutName: 幕语
-<<<<<<< HEAD
-=======
     # 确保安装程序图标与应用主图标一致（同时也与 macOS 使用的视觉来源保持一致）
     installerIcon: src/ui/assets/logo.ico
     uninstallerIcon: src/ui/assets/logo.ico
->>>>>>> 64e3da7 (fix: update windows icon)
 
 # macOS specific configuration
 mac:

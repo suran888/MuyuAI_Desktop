@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * 从 logo.png 生成 logo.ico 和 logo.icns
+ * �?logo.png 生成 logo.ico �?logo.icns
  * 
- * 使用方法：
+ * 使用方法�?
  *   npm run generate-icons
  * 
  * 或直接运行：
@@ -32,7 +32,7 @@ async function generateIco() {
     fs.mkdirSync(tempDir, { recursive: true });
   }
   
-  // 生成各个尺寸的 PNG
+  // 生成各个尺寸�?PNG
   for (const size of sizes) {
     await sharp(LOGO_PNG)
       .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
@@ -40,11 +40,11 @@ async function generateIco() {
       .toFile(path.join(tempDir, `icon-${size}.png`));
   }
   
-  console.log('  ✓ 生成了各个尺寸的图标');
+  console.log('  �?生成了各个尺寸的图标');
   
   // 检查是否安装了 ImageMagick
   try {
-    // 尝试使用 magick (ImageMagick v7) 或 convert (v6)
+    // 尝试使用 magick (ImageMagick v7) �?convert (v6)
     let convertCmd = 'convert';
     try {
       execSync('magick -version', { stdio: 'ignore' });
@@ -53,34 +53,28 @@ async function generateIco() {
       execSync('convert -version', { stdio: 'ignore' });
     }
     
-    // 使用 ImageMagick 合并成 ICO
+    // 使用 ImageMagick 合并�?ICO
     const pngFiles = sizes.map(s => path.join(tempDir, `icon-${s}.png`)).join(' ');
     execSync(`${convertCmd} ${pngFiles} ${LOGO_ICO}`, { stdio: 'ignore' });
-    console.log('  ✓ 使用 ImageMagick 生成 logo.ico');
+    console.log('  �?使用 ImageMagick 生成 logo.ico');
   } catch (error) {
-<<<<<<< HEAD
-    // 如果没有 ImageMagick，使用最大的尺寸作为 ICO
-    console.log('  ⚠️  未安装 ImageMagick，使用 256x256 PNG 作为 ICO');
-    fs.copyFileSync(path.join(tempDir, 'icon-256.png'), LOGO_ICO);
-=======
-    // 如果没有 ImageMagick，尝试使用 python+pillow 生成多尺寸 ICO
-    console.log('  ⚠️  未安装 ImageMagick，尝试使用 Python(pillow) 生成多尺寸 ICO');
+    // 如果没有 ImageMagick，尝试使�?python+pillow 生成多尺�?ICO
+    console.log('  ⚠️  未安�?ImageMagick，尝试使�?Python(pillow) 生成多尺�?ICO');
     try {
       const pyBin = 'python';
       const pyScript = path.join(__dirname, 'generate-windows-ico.py');
       execSync(`"${pyBin}" "${pyScript}"`, { stdio: 'ignore' });
-      console.log('  ✓ 使用 Python(pillow) 生成 logo.ico');
+      console.log('  �?使用 Python(pillow) 生成 logo.ico');
     } catch (pythonError) {
       // 最后兜底：只用最大的尺寸作为 ICO
       console.log('  ⚠️  Python(pillow) 生成失败，退化为 256x256 PNG 作为 ICO');
       fs.copyFileSync(path.join(tempDir, 'icon-256.png'), LOGO_ICO);
     }
->>>>>>> 64e3da7 (fix: update windows icon)
   }
   
   // 清理临时文件
   fs.rmSync(tempDir, { recursive: true, force: true });
-  console.log('✅ logo.ico 生成完成\n');
+  console.log('�?logo.ico 生成完成\n');
 }
 
 async function generateIcns() {
@@ -107,7 +101,7 @@ async function generateIcns() {
     fs.mkdirSync(iconsetDir, { recursive: true });
   }
   
-  // 生成各个尺寸的 PNG
+  // 生成各个尺寸�?PNG
   for (const { size, name } of sizes) {
     await sharp(LOGO_PNG)
       .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
@@ -115,36 +109,36 @@ async function generateIcns() {
       .toFile(path.join(iconsetDir, `${name}.png`));
   }
   
-  console.log('  ✓ 生成了各个尺寸的图标');
+  console.log('  �?生成了各个尺寸的图标');
   
   // 检查是否在 macOS 上并且有 iconutil
   if (process.platform === 'darwin') {
     try {
       execSync(`iconutil -c icns ${iconsetDir} -o ${LOGO_ICNS}`);
-      console.log('  ✓ 使用 iconutil 生成 logo.icns');
+      console.log('  �?使用 iconutil 生成 logo.icns');
     } catch (error) {
       console.log('  ⚠️  iconutil 执行失败，请手动转换');
       console.log(`  iconset 目录: ${iconsetDir}`);
       return;
     }
   } else {
-    console.log('  ⚠️  非 macOS 系统，无法使用 iconutil');
-    console.log('  请在 macOS 上运行以下命令生成 .icns:');
+    console.log('  ⚠️  �?macOS 系统，无法使�?iconutil');
+    console.log('  请在 macOS 上运行以下命令生�?.icns:');
     console.log(`  iconutil -c icns ${iconsetDir} -o ${LOGO_ICNS}`);
     return;
   }
   
   // 清理临时文件
   fs.rmSync(iconsetDir, { recursive: true, force: true });
-  console.log('✅ logo.icns 生成完成\n');
+  console.log('�?logo.icns 生成完成\n');
 }
 
 async function main() {
-  console.log('🎨 从 logo.png 生成应用图标\n');
+  console.log('🎨 �?logo.png 生成应用图标\n');
   
-  // 检查 logo.png 是否存在
+  // 检�?logo.png 是否存在
   if (!fs.existsSync(LOGO_PNG)) {
-    console.error('❌ 错误: logo.png 不存在');
+    console.error('�?错误: logo.png 不存�?);
     console.error(`   路径: ${LOGO_PNG}`);
     process.exit(1);
   }
@@ -157,7 +151,7 @@ async function main() {
     console.log(`   - ${LOGO_ICO}`);
     console.log(`   - ${LOGO_ICNS}`);
   } catch (error) {
-    console.error('❌ 生成图标时出错:', error.message);
+    console.error('�?生成图标时出�?', error.message);
     process.exit(1);
   }
 }
