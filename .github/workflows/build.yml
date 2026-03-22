@@ -113,7 +113,7 @@ jobs:
                   ls -lah artifacts/
                   find artifacts -type f
 
-            - name: � Generate update metadata files
+            - name: 📦 Generate update metadata files
               run: |
                   VERSION="${{ github.ref_name }}"
                   VERSION_NUM="${VERSION#v}"  # Remove v prefix
@@ -251,7 +251,7 @@ jobs:
                   echo "✅ Uploaded to Volcengine TOS successfully"
                   echo "📍 URL: https://desktop-release.tos-cn-beijing.volces.com/"
 
-            - name: �📤 Create GitHub Release
+            - name: 📤 Create GitHub Release
               uses: softprops/action-gh-release@v2
               with:
                   tag_name: ${{ github.ref_name }}
