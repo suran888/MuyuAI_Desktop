@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * Generate logo.ico (Windows) and logo.icns (macOS) from src/ui/assets/logo.png
+ * 从 src/ui/assets/logo.png 生成 logo.ico（Windows）和 logo.icns（macOS）
  *
- * Usage:
+ * 使用方式：
  *   npm run generate-icons
  *   node scripts/generate-icons.js
  */
@@ -19,9 +19,9 @@ const LOGO_ICO = path.join(ASSETS_DIR, 'logo.ico');
 const LOGO_ICNS = path.join(ASSETS_DIR, 'logo.icns');
 
 async function generateIco() {
-  console.log('[generate-icons] Building logo.ico (Windows)...');
+  console.log('[图标生成] 开始生成 logo.ico（Windows）');
 
-  // ICO: 16, 32, 48, 64, 128, 256
+  // ICO 常见尺寸
   const sizes = [16, 32, 48, 64, 128, 256];
   const tempDir = path.join(__dirname, '../temp-ico');
 
@@ -29,17 +29,22 @@ async function generateIco() {
     fs.mkdirSync(tempDir, { recursive: true });
   }
 
+  // 生成不同尺寸的 PNG
   for (const size of sizes) {
     await sharp(LOGO_PNG)
-      .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .resize(size, size, {
+        fit: 'contain',
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
       .png()
       .toFile(path.join(tempDir, `icon-${size}.png`));
   }
 
-  console.log('[generate-icons] PNG sizes generated.');
+  console.log('[图标生成] 已生成多尺寸 PNG');
 
   try {
     let convertCmd = 'convert';
+
     try {
       execSync('magick -version', { stdio: 'ignore' });
       convertCmd = 'magick';
@@ -47,28 +52,40 @@ async function generateIco() {
       execSync('convert -version', { stdio: 'ignore' });
     }
 
-    const pngFiles = sizes.map((s) => path.join(tempDir, `icon-${s}.png`)).join(' ');
+    const pngFiles = sizes.map((s) =>
+      path.join(tempDir, `icon-${s}.png`)
+    ).join(' ');
+
     execSync(`${convertCmd} ${pngFiles} ${LOGO_ICO}`, { stdio: 'ignore' });
-    console.log('[generate-icons] logo.ico created via ImageMagick.');
+
+    console.log('[图标生成] 使用 ImageMagick 成功生成 logo.ico');
   } catch (error) {
-    console.log('[generate-icons] ImageMagick not available; trying Python (Pillow)...');
+    console.log('[图标生成] 未检测到 ImageMagick，尝试使用 Python（Pillow）');
+
     try {
       const pyBin = 'python';
       const pyScript = path.join(__dirname, 'generate-windows-ico.py');
+
       execSync(`"${pyBin}" "${pyScript}"`, { stdio: 'ignore' });
-      console.log('[generate-icons] logo.ico created via Python (Pillow).');
+
+      console.log('[图标生成] 使用 Python（Pillow）成功生成 logo.ico');
     } catch (pythonError) {
-      console.log('[generate-icons] Pillow failed; falling back to 256x256 PNG renamed as .ico');
-      fs.copyFileSync(path.join(tempDir, 'icon-256.png'), LOGO_ICO);
+      console.log('[图标生成] Pillow 失败，退化为使用 256x256 PNG 作为 ICO');
+
+      fs.copyFileSync(
+        path.join(tempDir, 'icon-256.png'),
+        LOGO_ICO
+      );
     }
   }
 
   fs.rmSync(tempDir, { recursive: true, force: true });
-  console.log('[generate-icons] Done: logo.ico\n');
+
+  console.log('[图标生成] logo.ico 生成完成\n');
 }
 
 async function generateIcns() {
-  console.log('[generate-icons] Building logo.icns (macOS)...');
+  console.log('[图标生成] 开始生成 logo.icns（macOS）');
 
   const sizes = [
     { size: 16, name: 'icon_16x16' },
@@ -89,38 +106,46 @@ async function generateIcns() {
     fs.mkdirSync(iconsetDir, { recursive: true });
   }
 
+  // 生成 iconset PNG
   for (const { size, name } of sizes) {
     await sharp(LOGO_PNG)
-      .resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .resize(size, size, {
+        fit: 'contain',
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      })
       .png()
       .toFile(path.join(iconsetDir, `${name}.png`));
   }
 
-  console.log('[generate-icons] iconset PNGs generated.');
+  console.log('[图标生成] 已生成 iconset PNG');
 
   if (process.platform === 'darwin') {
     try {
       execSync(`iconutil -c icns ${iconsetDir} -o ${LOGO_ICNS}`);
-      console.log('[generate-icons] logo.icns created via iconutil.');
+      console.log('[图标生成] 使用 iconutil 成功生成 logo.icns');
     } catch (error) {
-      console.log('[generate-icons] iconutil failed; fix manually. iconset:', iconsetDir);
+      console.log('[图标生成] iconutil 执行失败，请手动转换');
+      console.log('iconset 目录:', iconsetDir);
       return;
     }
   } else {
-    console.log('[generate-icons] Not macOS: cannot run iconutil. Generate .icns on a Mac.');
-    console.log(`  iconutil -c icns ${iconsetDir} -o ${LOGO_ICNS}`);
+    console.log('[图标生成] 当前不是 macOS，无法执行 iconutil');
+    console.log('请在 macOS 执行以下命令生成 .icns：');
+    console.log(`iconutil -c icns ${iconsetDir} -o ${LOGO_ICNS}`);
     return;
   }
 
   fs.rmSync(iconsetDir, { recursive: true, force: true });
-  console.log('[generate-icons] Done: logo.icns\n');
+
+  console.log('[图标生成] logo.icns 生成完成\n');
 }
 
 async function main() {
-  console.log('[generate-icons] Source: logo.png\n');
+  console.log('[图标生成] 使用 logo.png 生成应用图标\n');
 
   if (!fs.existsSync(LOGO_PNG)) {
-    console.error('[generate-icons] ERROR: missing file:', LOGO_PNG);
+    console.error('[图标生成] 错误：未找到 logo.png');
+    console.error('路径：', LOGO_PNG);
     process.exit(1);
   }
 
@@ -128,11 +153,11 @@ async function main() {
     await generateIco();
     await generateIcns();
 
-    console.log('[generate-icons] All done.');
-    console.log('  ', LOGO_ICO);
-    console.log('  ', LOGO_ICNS);
+    console.log('[图标生成] 全部完成');
+    console.log(' ', LOGO_ICO);
+    console.log(' ', LOGO_ICNS);
   } catch (error) {
-    console.error('[generate-icons] ERROR:', error.message);
+    console.error('[图标生成] 执行失败：', error.message);
     process.exit(1);
   }
 }
